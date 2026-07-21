@@ -93,7 +93,6 @@
     </div>
 
 @else
-
     <!-- Show sidebar & content-container -->
     <div class="app-wrapper">
         <!-- Right side: Sidebar -->
@@ -113,21 +112,24 @@
             </div>
         </div>
     </div>
-
 @endif
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Jquery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Local JS -->
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('js/dataTables.bootstrap5.min.js') }}"></script>
+<script src="{{ asset('js/select2.min.js') }}"></script>
+<script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+
+
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-<!-- Select2 CSS & JS  -->
-<script src="https://jquery.com"></script>
-<link href="https://jsdelivr.net" rel="stylesheet" />
-<script src="https://jsdelivr.net"></script>
-
+<!-- Datatable -->
 <script>
     $(document).ready(function() {
         $('#bookingsTable, #paymentsTable, #roomsTable, #roomTypesTable, #usersTable, #shiftTable, #staffTable, #housekeepingTable').DataTable({
@@ -146,38 +148,54 @@
     });
 </script>
 
-
-@yield('scripts')
-
-{{-- <!-- SweetAlert2 -->
-<script src="https://jsdelivr.net"></script>
-<!-- SWEETALERT2 JAVASCRIPT -->
-<script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+<!-- SweetAlert2 -->
 <script>
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
         timer: 4000,
-        timerProgressBar: true
+        timerProgressBar: true,
+        didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+        }
     });
 
     // success message
     @if(session('success'))
         Toast.fire({
             icon: 'success',
-            title: "{!! session('success') !!}"
+            title: "{{ session('success') }}"
         });
     @endif
 
     // error message
-    @if(session('error'))
+    @if($errors->any())
         Toast.fire({
             icon: 'error',
-            title: "{!! session('error') !!}"
+            title: "{{ $errors->first() }}" 
         });
     @endif
-</script> --}}
+        
+</script>
 
+<script>
+    window.addEventListener('pageshow', function (event) {
+        // Check if the page was loaded from the browser history cache (Back button pressed)
+        var historyTraversal = event.persisted || 
+                               (typeof window.performance != 'undefined' && 
+                                window.performance.navigation.type === 2);
+                                
+        if (historyTraversal) {
+            // Close any frozen SweetAlert spinner immediately
+            if (typeof Swal !== 'undefined') {
+                Swal.close();
+            }
+        }
+    });
+</script>
+
+@yield('scripts')
 </body>
 </html>

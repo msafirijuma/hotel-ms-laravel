@@ -50,7 +50,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Floor</label>
-                    <input type="text" name="room_number" class="form-control @error('floor') is-invalid @enderror" required>
+                    <input type="text" name="floor" class="form-control @error('floor') is-invalid @enderror" required>
                     @error('floor')
                         <span class="text-danger">{{ $message }}</span>
                     @enderror

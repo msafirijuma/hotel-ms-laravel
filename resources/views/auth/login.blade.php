@@ -26,19 +26,13 @@
                             <input type="text" name="email" 
                                    class="form-control form-control-lg @error('email') is-invalid @enderror"
                                    value="{{ old('email') }}" required autofocus>
-                            @error('email')
-                                <span class="text-danger small">{{ $message }}</span>
-                            @enderror
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Password</label>
                             <input type="password" name="password" 
                                    class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                   required>
-                            @error('password')
-                                <span class="text-danger small">{{ $message }}</span>
-                            @enderror
+                                   required auto>
                         </div>
 
                         <div class="d-flex justify-content-between mb-4">

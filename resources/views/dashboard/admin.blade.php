@@ -195,7 +195,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4 small">No any recent payments yet.</td>
+                                    <td colspan="6" class="text-center text-muted py-4 small">No any recent payments yet.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

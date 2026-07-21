@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-tools me-2"></i>Hotel Maintenance Logs (Rooms under maintenance)</h5>
+            <h5 class="mb-0 fw-bold"><i class="fas fa-tools me-2"></i>Room Maintenance Logs</h5>
         </div>
         
         <div class="card-body p-4">
@@ -39,7 +39,7 @@
                             <td><strong>{{ $room->roomType->name ?? 'Room' }}</strong></td>
                             <td>
                                 <div class="p-2 bg-light rounded text-danger fw-semibold border-start border-danger border-3" style="font-size: 14px;">
-                                    <i class="fas fa-exclamation-circle me-1"></i> {{ $room->notes ?? 'Not detailed.' }}
+                                    <i class="fas fa-exclamation-circle me-1"></i> {{ $room->housekeepingTask->description ?? 'Not detailed.' }}
                                 </div>
                             </td>
                             <td>

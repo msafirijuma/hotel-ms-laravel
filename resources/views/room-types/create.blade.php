@@ -19,7 +19,7 @@
                             <h5 class="mb-3 text-primary">Basic Information</h5>
                             <div class="mb-3">
                                 <label class="form-label">Type Name <span class="text-danger">*</span></label>
-                                <input type="text" name="type_name" class="form-control" value="<?= $_POST['type_name'] ?? '' ?>" required>
+                                <input type="text" name="name" class="form-control" value="<?= $_POST['name'] ?? '' ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Price Per Night (TZS) <span class="text-danger">*</span></label>

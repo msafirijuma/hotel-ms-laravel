@@ -47,7 +47,7 @@
                                     <option value="{{ $type->id }}" 
                                             data-image="{{ $type->image ? asset('storage/' . $type->image) : asset('assets/img/no-image.png') }}"
                                             {{ $type->id == old('room_type_id', $room->room_type_id) ? 'selected' : '' }}>
-                                        {{ $type->type_name }} (TZS {{ number_format($type->price_per_night, 0) }}/usiku)
+                                        {{ $type->name }} (TZS {{ number_format($type->price_per_night, 0) }}/night)
                                     </option>
                                 @endforeach
                             </select>
@@ -59,16 +59,32 @@
                             <input type="text" name="floor" class="form-control" 
                                    value="{{ old('floor', $room->floor) }}">
                         </div>
+
+                        <!-- Status -->
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Status <span class="text-danger">*</span></label>
-                            <select name="status" class="form-select" required>
-                                <option value="available" {{ old('status', $room->status) == 'available' ? 'selected' : '' }}>Available</option>
-                                <option value="occupied" {{ old('status', $room->status) == 'occupied' ? 'selected' : '' }}>Occupied</option>
-                                <option value="dirty" {{ old('status', $room->status) == 'dirty' ? 'selected' : '' }}>Dirty</option>
-                                <option value="maintenance" {{ old('status', $room->status) == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                            </select>
+                            <select name="status" class="form-select required">
+                                    
+                                    @if(auth()->user()->hasRole('admin'))
+                                        <!-- Admin anaona options zote -->
+                                        <option value="available" {{ old('status', $room->status) == 'available' ? 'selected' : '' }}>Available</option>
+                                        <option value="occupied" {{ old('status', $room->status) == 'occupied' ? 'selected' : '' }}>Occupied</option>
+                                        <option value="cleaning" {{ old('status', $room->status) == 'cleaning' ? 'selected' : '' }}>Cleaning</option>
+                                        <option value="maintenance" {{ old('status', $room->status) == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                    @else
+                                        <!-- Receptionist / Housekeeper -->
+                                        @if($room->status == 'maintenance')
+                                            <option value="maintenance" selected>Maintenance</option>
+                                        @else
+                                            <option value="available" {{ old('status', $room->status) == 'available' ? 'selected' : '' }}>Available</option>
+                                            <option value="occupied" {{ old('status', $room->status) == 'occupied' ? 'selected' : '' }}>Occupied</option>
+                                            <option value="cleaning" {{ old('status', $room->status) == 'cleaning' ? 'selected' : '' }}>Cleaning</option>
+                                        @endif
+                                    @endif
+                                </select>
                         </div>
                     </div>
+
                     <div class="col-lg-6">
                         <!-- Preview Room Type Image -->
                         <div class="mb-3">

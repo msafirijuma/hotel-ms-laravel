@@ -2,9 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'HRM System')</title>
-    
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="data:,">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -42,15 +40,13 @@
             font-weight: 500;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        
+ 
         .sidebar .nav-link i {
             font-size: 1.1rem;
             color: #8a99b5;
             transition: all 0.3s ease;
         }
-
-        
+   
         .sidebar .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.08) !important;
             color: #ffffff !important;
@@ -93,6 +89,12 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/select2-bootstrap-5.min.css') }}">
+
     @yield('styles')
 </head>

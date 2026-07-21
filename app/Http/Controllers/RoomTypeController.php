@@ -38,7 +38,8 @@ class RoomTypeController extends Controller
             'name'             => 'required|string|max:100|unique:room_types,name',
             'description'      => 'nullable|string|max:500',
             'price_per_night'  => 'required|numeric|min:1000|max:1000000',
-            'max_occupancy'    => 'required|integer|min:1|max:10',
+            'max_adults'    => 'required|integer|min:1|max:10',
+            'max_children'    => 'nullable|integer|min:1|max:10',
             'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
         ]);
 
@@ -46,7 +47,7 @@ class RoomTypeController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            
+
             // Create directory if not exists
             $path = public_path('uploads/room_types');
             if (!file_exists($path)) {
@@ -62,7 +63,7 @@ class RoomTypeController extends Controller
         LogActivity::log('Create Room Type', 'Has created room type: ' . $request->name);
 
         return redirect()->route('room-types.index')
-                        ->with('success', 'Room Type created successfully with image!');
+            ->with('success', 'Room Type ' . $request->name . ' created successfully!');
     }
     /**
      * Show the form for editing the specified resource.
@@ -76,7 +77,7 @@ class RoomTypeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(Request $request, RoomType $roomType)
+    public function update(Request $request, RoomType $roomType)
     {
         // Basic validation
         $request->validate([
@@ -88,7 +89,7 @@ class RoomTypeController extends Controller
             'main_image'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
             'gallery.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB for image
         ], [
-            'name.unique' => 'Jina hili la aina ya chumba tayari linatumika.',
+            'name.unique' => 'A room type with this name already exists. Please choose another.',
         ]);
 
         $imagePath = $roomType->image; // Keeping old as alternative
@@ -108,7 +109,7 @@ class RoomTypeController extends Controller
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
                 $galleryPath = $file->store('uploads/room_types', 'public');
-                
+
                 // insert data into gallery pictue table
                 $newImg = RoomTypeImage::create([
                     'room_type_id' => $roomType->id,
@@ -126,7 +127,7 @@ class RoomTypeController extends Controller
         // Auto set first new gallery as primary if no main image
         if (empty($imagePath) && !empty($firstNewGallery)) {
             $imagePath = $firstNewGallery;
-            
+
             // Putting is_primary = 1 for this main image
             RoomTypeImage::where('id', $firstNewGalleryId)->update(['is_primary' => 1]);
         }
@@ -144,7 +145,7 @@ class RoomTypeController extends Controller
         LogActivity::log('Update Room Type', 'Has created room type: ' . $request->name);
 
         return redirect()->route('room-types.index')
-            ->with('success', 'Room Type update successfully!');
+            ->with('success', 'Room Type ' . $request->name . ' updated successfully!');
     }
 
     /**
@@ -155,7 +156,7 @@ class RoomTypeController extends Controller
         // Optional: Check if any rooms are using this type
         if ($roomType->rooms()->count() > 0) {
             return redirect()->route('room-types.index')
-                             ->with('error', 'Cannot delete this room type because it is being used by some rooms.');
+                ->with('error', 'Cannot delete this room type because it is being used by some rooms.');
         }
 
         $roomType->delete();
@@ -163,11 +164,11 @@ class RoomTypeController extends Controller
         LogActivity::log('Delete Room Type', 'Has deleted room type: ' . $roomType->name);
 
         return redirect()->route('room-types.index')
-                         ->with('success', 'Room Type deleted successfully!');
+            ->with('success', 'Room Type deleted ' . $roomType->name . ' successfully!');
     }
 
     /**
-     * Futa picha maalum ya Gallery kutoka kwenye Database na Storage
+     * Delete image from Database and Storage
      */
     public function destroyGalleryImage($id)
     {
@@ -181,7 +182,7 @@ class RoomTypeController extends Controller
 
         // delete also in db
         $image->delete();
-        
+
         LogActivity::log('Delete Image', 'Has deleted: ' . $image . ' from database.');
 
         return back()->with('success', 'Gallery image has been deleted successfully!');
@@ -213,5 +214,4 @@ class RoomTypeController extends Controller
 
         return back()->with('success', 'Primary image has been updated successfully!');
     }
-
 }

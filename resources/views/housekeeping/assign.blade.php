@@ -5,21 +5,14 @@
 @section('content')
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-primary text-white py-3">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0 fw-bold"><i class="fas fa-broom me-2"></i>Assign Housekeeping Task</h5>
+            <a href="{{ route('housekeeping.index') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
+                <i class="fas fa-arrow-left"></i> Back to Tasks
+            </a>
         </div>
         
         <div class="card-body p-4">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
 
             <form id="housekeepingForm" method="POST">
                 @csrf
@@ -42,21 +35,21 @@
                     <label class="form-label fw-bold text-dark">Choose Housekeeper <span class="text-danger">*</span></label>
                     <p class="small text-muted mb-2">
                         <span class="badge bg-success me-2">Current Shift ({{ ucfirst($current_shift) }})</span>
-                        current shift housekeepers are highlighted in <span class="fw-bold text-success">green and bold</span> in the dropdown.
+                        Current shift housekeepers are highlighted in <span class="fw-bold text-success">green and bold</span> in the dropdown.
                     </p>
-                    <select name="assigned_to" class="form-select searchable-dropdown">
+                    <select name="assigned_to" id="assignedToSelect" class="form-select searchable-dropdown">
                         <option value="">Choose housekeeper...</option>
                         @foreach($housekeepers as $staff)
-                            <!-- check if housekeeper belongs to the current shift -->
                             @php
-                                $isCurrentShift = str_contains(strtolower($staff->shift), strtolower($current_shift))
+                                $isCurrentShift = \Illuminate\Support\Str::contains(strtolower($staff->shift), strtolower($current_shift));
                             @endphp
-                            <option value="{{ $staff->id }}" class="badge bg-{{ $isCurrentShift ? 'success' : 'secondary' }}">
+                            <option value="{{ $staff->id }}" data-active="{{ $isCurrentShift ? 'true' : 'false' }}">
                                 {{ $staff->name }} [{{ ucfirst($staff->shift) }}] — Pending: {{ $staff->pending_tasks }}, In Progress: {{ $staff->in_progress }}
                             </option>
                         @endforeach
                     </select>
                 </div>
+
 
                 <!-- Additional Notes -->
                 <div class="mb-4">
@@ -84,17 +77,20 @@
 <script>
 $(document).ready(function() {
     $('.searchable-dropdown').select2({
-        placeholder: "Tafuta hapa...",
+        placeholder: "Search here...",
         allowClear: true,
         theme: "bootstrap-5",
         width: '100%',
         minimumInputLength: 0,
+
         templateResult: function(data) {
+
             if (!data.id || !data.element) {
                 return data.text;
             }
             
             let $option = $('<span>' + data.text + '</span>');
+
             let isActive = $(data.element).attr('data-active') || $(data.element).data('active');
             
             if (isActive === true || isActive === 'true') {
@@ -106,7 +102,6 @@ $(document).ready(function() {
         }
     });
 });
-
 
 // Change form to either manual or auto assign based on which button is clicked
 function submitForm(actionUrl) {

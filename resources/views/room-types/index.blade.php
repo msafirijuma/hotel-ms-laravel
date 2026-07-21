@@ -57,19 +57,22 @@
                                                 title="View Gallery">
                                             <i class="fas fa-images"></i>
                                         </button>
-
-                                        <a href="{{ route('room-types.edit', $type->id) }}" title="Edit Room Type" class="btn btn-sm btn-warning text-dark py-1">
+        
+                                        <!-- 2. EDIT BUTTON -->
+                                        <button type="button" onclick="triggerEdit('{{ route('room-types.edit', $type->id) }}')" class="btn btn-sm btn-warning text-dark py-1" title="Edit Room Type">
                                             <i class="fas fa-edit"></i>
-                                        </a>
-                                        
-                                        <form action="{{ route('room-types.destroy', $type->id) }}" method="POST" class="d-inline m-0" 
-                                              onsubmit="return confirm('Are you sure you want to delete this room type?')">
+                                        </button>
+
+                                        <!-- 3. SECURE DELETE FORM (Hidden) -->
+                                        <form id="delete-type-form-{{ $type->id }}" action="{{ route('room-types.destroy', $type->id) }}" method="POST" class="d-none">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger py-1" title="Delete Room Type">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
                                         </form>
+
+                                        <!-- 4. DELETE BUTTON -->
+                                        <button type="button" onclick="triggerDelete({{ $type->id }}, '{{ addslashes($type->name) }}')" class="btn btn-sm btn-danger py-1" title="Delete Category">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -115,7 +118,7 @@
                                                                                 </button>
                                                                             </div>
                                                                         @else
-                                                                            <!-- show titlt for this delete button -->
+                                                                            <!-- show title for this delete button -->
                                                                             <button type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center shadow" 
                                                                                     style="width: 34px; height: 34px; border-radius: 6px;" 
                                                                                     onclick="if(confirm('Futa picha hii ya gallery?')) { document.getElementById('delete-gallery-form-{{ $img->id }}').submit(); }"
@@ -167,3 +170,57 @@
     </div>
 </div>
 @endsection
+@section('scripts')
+<script>
+    // Loader function during page navigation
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // View Action Loading
+    function triggerView(url) {
+        showPageLoader('Opening room type details...');
+        window.location.href = url;
+    }
+
+    // Edit Action Loading
+    function triggerEdit(url) {
+        showPageLoader('Loading room types layout...');
+        window.location.href = url;
+    }
+
+    // Delete Action Loading
+    function triggerDelete(id, typeName) {
+        Swal.fire({
+            title: 'Delete this category?',
+            text: `You will completely delete "${typeName}" and all associated structural parameters from the system!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash"></i> Yes, Delete Category!',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-danger btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            // Loader during the deletion process
+            if (result.isConfirmed) {
+                showPageLoader('Deleting Room Type from system database...');
+                document.getElementById('delete-type-form-' + id).submit();
+            }
+        });
+    }
+</script>
+@endsection
+

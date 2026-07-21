@@ -32,8 +32,7 @@ class LoginController extends Controller
             // Redirect based on user role
             if ($user->hasAnyRole(['admin', 'receptionist', 'housekeeper', 'manager'])) {
                 return redirect()->route('dashboard')->with('success', 'Welcome back!');
-            } 
-            else {
+            } else {
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'You do not have access to the dashboard.',

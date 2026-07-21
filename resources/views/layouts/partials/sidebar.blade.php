@@ -33,11 +33,13 @@
                             <i class="fas fa-list me-2 small"></i> Rooms List
                         </a>
                     </li>
-                    <li>
-                        <a class="dropdown-item text-white py-2" href="{{ route('room-types.index') }}">
-                            <i class="fas fa-building me-2 small"></i> Room Types
-                        </a>
-                    </li>
+                    @if(auth()->user()->hasRole('admin'))
+                        <li>
+                            <a class="dropdown-item text-white py-2" href="{{ route('room-types.index') }}">
+                                <i class="fas fa-building me-2 small"></i> Room Types
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
             <li class="nav-item mb-1">
