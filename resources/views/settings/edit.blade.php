@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
                 @csrf
 
                 <div class="row g-4">
@@ -96,3 +96,22 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script>
+    // Triggerign Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while hotel settings and profiles are being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
+@endsection
+

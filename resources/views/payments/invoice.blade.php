@@ -16,8 +16,8 @@
         <button onclick="window.print();" class="btn btn-outline-dark me-2">
             <i class="fas fa-print"></i> Print
         </button>
-        <a href="{{ route('bookings.index') }}" class="btn btn-primary">
-        <i class="fas fa-arrow-left me-2 "></i>Back to Bookings
+        <a href="{{ route('payments.index') }}" class="btn btn-primary">
+        <i class="fas fa-arrow-left me-2 "></i>Back to Payments
         </a>
     </div>
 

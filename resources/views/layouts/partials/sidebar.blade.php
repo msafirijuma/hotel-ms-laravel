@@ -58,7 +58,7 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a href="{{ route('maintenance.logs') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'maintenance.logs') active @endif">
+                <a href="{{ route('maintenance-logs.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'maintenance-logs.index') active @endif">
                     <i class="fas fa-tools me-3"></i> Maintenance Logs
                 </a>
             </li>

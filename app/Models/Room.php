@@ -10,12 +10,18 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'room_number', 'room_type_id', 'status', 'notes', 'floor', 'price_per_night', 'floor'
+        'room_number',
+        'room_type_id',
+        'status',
+        'notes',
+        'floor',
+        'price_per_night',
+        'floor'
     ];
 
     public function roomType()
     {
-        return $this->belongsTo(RoomType::class, 'room_type_id'); 
+        return $this->belongsTo(RoomType::class, 'room_type_id');
     }
     public function bookings()
     {
@@ -24,5 +30,9 @@ class Room extends Model
     public function housekeepingTasks()
     {
         return $this->hasMany(HousekeepingTask::class);
+    }
+    public function maintenanceLogs()
+    {
+        return $this->hasMany(MaintenanceLog::class);
     }
 }

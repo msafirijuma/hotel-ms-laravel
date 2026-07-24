@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('bookings.update', $booking->id) }}" method="POST">
+            <form action="{{ route('bookings.update', $booking->id) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
                 @csrf
                 @method('PUT')
 
@@ -40,7 +40,7 @@
                                 <input type="hidden" id="check_in_date" value="{{ $booking->check_in_date }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label font-weight-bold text-primary">Check-out (Sogeza Siku mbele) <span class="text-danger">*</span></label>
+                                <label class="form-label font-weight-bold text-primary">Check-out <span class="text-danger">*</span></label>
                                 <input type="date" name="check_out_date" id="check_out_date" class="form-control border-primary" 
                                        value="{{ old('check_out_date', $booking->check_out_date) }}" required>
                             </div>
@@ -138,5 +138,21 @@ document.addEventListener('DOMContentLoaded', function() {
         checkOutInput.addEventListener('change', reCalculateTotal);
     }
 });
+</script>
+
+<script>
+    // Triggerign Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while a booking is being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
 </script>
 @endsection

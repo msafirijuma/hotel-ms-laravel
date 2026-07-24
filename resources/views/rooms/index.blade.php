@@ -35,11 +35,12 @@
                         <td>{{ $room->floor ?? '-' }}</td>
                         <td>{{ $room->roomType->price_per_night ?? '-' }}</td>
                         <td>
-                            <span class="badge bg-{{ 
-                                $room->status == 'available' ? 'success' : 
-                                ($room->status == 'occupied' ? 'primary' : 
-                                ($room->status == 'dirty' ? 'danger' : 'warning')) 
-                            }} text-uppercase">
+                            <span class="badge bg-{{
+                                    $room->status == 'available' ? 'success' : 
+                                    ($room->status == 'occupied' ? 'primary' : 
+                                    ($room->status == 'dirty' ? 'danger' : 
+                                    ($room->status == 'cleaning' ? 'info' : 'warning')))
+                                }} text-uppercase">
                                 {{ $room->status }}
                             </span>
                         </td>
@@ -68,6 +69,7 @@
                                             <option value="available" {{ $room->status == 'available' ? 'selected' : '' }}>Available</option>
                                             <option value="occupied" {{ $room->status == 'occupied' ? 'selected' : '' }}>Occupied</option>
                                             <option value="cleaning" {{ $room->status == 'cleaning' ? 'selected' : '' }}>Cleaning</option>
+                                            <option value="dirty" {{ $room->status == 'dirty' ? 'selected' : '' }}>Dirty</option>
                                         @endif
                                     @endif
                                 </select>
@@ -119,7 +121,6 @@
 </div>
 @endsection
 
-@section('scripts')
 @section('scripts')
 <script>
     // Loader function during page navigation
@@ -181,6 +182,4 @@
         });
     }
 </script>
-@endsection
-
 @endsection

@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('room-types.update', $roomType->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('room-types.update', $roomType->id) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
                 @csrf
                 @method('PUT')
 
@@ -158,4 +158,24 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+
+<script>
+    // Triggering Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Updating room type...',
+                text: 'Please wait while a room type is being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
+    
 @endsection

@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('rooms.update', $room->id) }}" method="POST">
+            <form action="{{ route('rooms.update', $room->id) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
                 @csrf
                 @method('PUT')
 
@@ -127,6 +127,22 @@
             previewImg.src = selectedOption.getAttribute('data-image');
         } else {
             previewImg.src = "{{ asset('assets/img/no-image.png') }}";
+        }
+    }
+</script>
+
+<script>
+    // Triggering Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Updating room...',
+                text: 'Please wait while a room is being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
         }
     }
 </script>

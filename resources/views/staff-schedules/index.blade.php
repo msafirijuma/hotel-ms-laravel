@@ -22,7 +22,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('staff-schedules.store') }}" method="POST">
+            <form action="{{ route('staff-schedules.store') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveChanges(event)">
                 @csrf
                 <div class="row g-4">
                     <!-- Choose Housekeeper -->
@@ -96,6 +96,7 @@
                                 <th>Shift Assigned</th>
                                 <th>Date</th>
                                 <th>Notes</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +111,27 @@
                                 </td>
                                 <td class="text-secondary font-monospace">{{ \Carbon\Carbon::parse($sched->shift_date)->format('d/m/Y') }}</td>
                                 <td class="text-muted"><small>{{ $sched->notes ?? '-' }}</small></td>
+                                <td>
+                                    <div class="d-flex gap-1 justify-content-center align-items-center">
+                                        
+                                         <a href="{{ route('schedules.edit', $sched->id) }}" onclick="triggerEdit(event, this.href)" class="btn btn-sm btn-warning py-1" title="Edit Schedule">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+        
+                                        <!-- 1. Secure Delete Form (Hidden) -->
+                                        <form id="delete-schedule-form-{{ $sched->id }}" action="{{ route('schedules.destroy', $sched->id) }}" method="POST" class="d-none">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+
+                                        <!-- 2. Delete Schedule button -->
+                                        <button type="button" onclick="triggerDelete({{ $sched->id }}, '{{ addslashes($sched->user->name ?? 'Staff') }}', '{{ \Carbon\Carbon::parse($sched->shift_date)->format('d/m/Y') }}')" class="btn btn-sm btn-danger py-1" title="Delete Schedule">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+
+                                    </div>
+                                </td>
+
                             </tr>
                             @endforeach
                         </tbody>
@@ -141,4 +163,66 @@ $(document).ready(function() {
     });
 });
 </script>
+@section('scripts')
+<script>
+    // Loader function during page navigation
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // Triggering Save changes form
+    function triggerSaveChanges(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving Schedule...',
+                text: 'Please wait while saving staff schedule.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+
+     // Handle schedule edit layout loading event intercept
+    function triggerEdit(event, url) {
+        event.preventDefault(); 
+        showPageLoader('Loading schedule...');
+        window.location.href = url;
+    }
+
+    // Handle deletion of a specific staff shift schedule
+    function triggerDelete(id, staffName, shiftDate) {
+        Swal.fire({
+            title: 'Remove from schedule?',
+            text: `You are about to remove ${staffName} from assigned shift duty on ${shiftDate}!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash"></i> Yes, Remove Duty!',
+            cancelButtonText: 'No, Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-danger btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            // Loader during the deletion process
+            if (result.isConfirmed) {
+                showPageLoader('Removing staff schedule...');
+                document.getElementById('delete-schedule-form-' + id).submit();
+            }
+        });
+    }
+</script>
+
 @endsection

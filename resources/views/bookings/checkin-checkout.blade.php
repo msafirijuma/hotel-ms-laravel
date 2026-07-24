@@ -26,10 +26,10 @@
                             <tbody>
                                 @foreach($pendingCheckIns as $booking)
                                 <tr>
-                                    <td>{{ $booking->guest->full_name }}</td>
-                                    <td><strong>{{ $booking->room->room_number }}</strong></td>
+                                    <td>{{ $booking->guest->full_name ?? 'Unknown Guest' }}</td>
+                                    <td><strong>No. {{ $booking->room->room_number ?? 'N/A' }}</strong></td>
                                     <td>
-                                        <form action="{{ route('bookings.checkin', $booking) }}" method="POST">
+                                        <form action="{{ route('bookings.checkin', $booking) }}" method="POST" onsubmit="triggerCheckIn()" enctype="multipart/form-data">
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-sm">Check-in</button>
                                         </form>
@@ -67,7 +67,7 @@
                                     <td>{{ $booking->guest->full_name }}</td>
                                     <td><strong>{{ $booking->room->room_number }}</strong></td>
                                     <td>
-                                        <form action="{{ route('bookings.checkout', $booking) }}" method="POST">
+                                        <form action="{{ route('bookings.checkout', $booking) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerCheckIn()">
                                             @csrf
                                             <button type="submit" class="btn btn-warning btn-sm">Check-out</button>
                                         </form>
@@ -137,4 +137,37 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering CheckIn
+    function triggerCheckIn(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Checked In...',
+                text: 'Please wait while a guest is checked in.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+
+    // Triggering CheckOut
+    function triggerCheckOut(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Checked Out...',
+                text: 'Please wait while a guest is checked out.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
+    
 @endsection

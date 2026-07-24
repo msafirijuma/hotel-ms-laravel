@@ -12,37 +12,55 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    /**
+     * Generate hotel analytical reports based on selected month and year filters.
+     */
     public function index(Request $request)
     {
-        // Get month and year (Default is current month and year)
+        // Capture input filter parameters (Default is current month and year)
         $month = $request->get('month', date('m'));
         $year = $request->get('year', date('Y'));
 
-        // Occupancy Rate
+        // OCCUPANCY RATE: Calculated based on historical bookings for that specific month/year
         $total_rooms = Room::count() ?: 1;
-        $occupied_rooms = Room::where('status', 'occupied')->count();
-        $occupancy_rate = round(($occupied_rooms / $total_rooms) * 100);
 
-        // Month Revenue from Payments (Selected month)
+        $occupied_rooms_count = Booking::whereYear('check_in_date', $year)
+            ->whereMonth('check_in_date', $month)
+            ->whereIn('status', ['confirmed', 'checked_in', 'checked_out'])
+            ->distinct('room_id')
+            ->count('room_id');
+
+        $occupancy_rate = $occupied_rooms_count > 0 ? round(($occupied_rooms_count / $total_rooms) * 100) : 0;
+
+        // REVENUE FROM PAYMENTS: Filtered strictly by selected month and year parameters
         $month_revenue = Payment::whereYear('payment_date', $year)
             ->whereMonth('payment_date', $month)
             ->where('status', 'paid')
             ->sum('amount_paid');
 
-        // Total number of guests (Available or even once booked)
-        $total_guests = Guest::count();
+        // FIXED TOTAL GUESTS: Count unique guests who had valid bookings in that specific period
+        $total_guests = Booking::whereYear('check_in_date', $year)
+            ->whereMonth('check_in_date', $month)
+            ->whereIn('status', ['confirmed', 'checked_in', 'checked_out'])
+            ->distinct('guest_id')
+            ->count('guest_id');
 
-        // Average Staying Days
-        $avg_stay = Booking::select(DB::raw('AVG(DATEDIFF(check_out_date, check_in_date)) as average_days'))
+        // AVERAGE STAYING DAYS: Calculated strictly within the selected calendar boundaries
+        $avg_stay = Booking::whereYear('check_in_date', $year)
+            ->whereMonth('check_in_date', $month)
+            ->whereIn('status', ['confirmed', 'checked_in', 'checked_out'])
+            ->select(DB::raw('AVG(DATEDIFF(check_out_date, check_in_date)) as average_days'))
             ->first()->average_days ?? 0;
 
+        $avg_stay = round($avg_stay, 1);
+
         // ==========================================
-        // CHART: Last 30 days
+        // DAILY REVENUE CHART: Last 30 Days trend tracker
         // ==========================================
         $daily_payments = Payment::select(
-                DB::raw('DATE(payment_date) as date'),
-                DB::raw('SUM(amount_paid) as total')
-            )
+            DB::raw('DATE(payment_date) as date'),
+            DB::raw('SUM(amount_paid) as total')
+        )
             ->where('payment_date', '>=', now()->subDays(30))
             ->where('status', 'paid')
             ->groupBy('date')
@@ -57,12 +75,12 @@ class ReportController extends Controller
         }
 
         // ==========================================
-        // CHART: Total payment for all months (Selected month)
+        // MONTHLY REVENUE CHART: Tracked within the selected filter year boundary
         // ==========================================
         $monthly_payments = Payment::select(
-                DB::raw('MONTH(payment_date) as month_num'),
-                DB::raw('SUM(amount_paid) as total')
-            )
+            DB::raw('MONTH(payment_date) as month_num'),
+            DB::raw('SUM(amount_paid) as total')
+        )
             ->whereYear('payment_date', $year)
             ->where('status', 'paid')
             ->groupBy('month_num')
@@ -71,15 +89,22 @@ class ReportController extends Controller
 
         $monthly_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         $monthly_data = [];
-        
+
         for ($m = 1; $m <= 12; $m++) {
             $monthly_data[] = $monthly_payments[$m] ?? 0;
         }
 
         return view('reports.index', compact(
-            'month', 'year', 'occupancy_rate', 'month_revenue', 
-            'total_guests', 'avg_stay', 'daily_labels', 'daily_data', 
-            'monthly_labels', 'monthly_data'
+            'month',
+            'year',
+            'occupancy_rate',
+            'month_revenue',
+            'total_guests',
+            'avg_stay',
+            'daily_labels',
+            'daily_data',
+            'monthly_labels',
+            'monthly_data'
         ));
     }
 }

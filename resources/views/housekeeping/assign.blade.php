@@ -54,7 +54,7 @@
                 <!-- Additional Notes -->
                 <div class="mb-4">
                     <label class="form-label fw-bold text-dark">Additional Notes (optional)</label>
-                    <textarea name="notes" class="form-control" rows="3" placeholder="Example: VIP - balcony very clean"></textarea>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Example: VIP - balcony very clean"></textarea>
                 </div>
 
                 <!-- Auto assign & Manual assign buttons -->

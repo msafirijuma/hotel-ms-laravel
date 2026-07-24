@@ -14,7 +14,7 @@
                         </a>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveChanges(event)">
                             @csrf
                             @method('PUT')
 
@@ -53,7 +53,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label>Simu <span class="text-danger">*</span></label>
+                                        <label>Phone <span class="text-danger">*</span></label>
                                         <input type="text" name="phone" class="form-control" 
                                                value="{{ old('phone', $user->phone) }}" required>
                                     </div>
@@ -90,4 +90,22 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering Save setting form
+    function triggerSaveChanges(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while a profile is being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection

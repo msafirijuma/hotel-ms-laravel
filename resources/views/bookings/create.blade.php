@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('bookings.store') }}" method="POST" class="booking-form">
+            <form action="{{ route('bookings.store') }}" method="POST" class="booking-form" onsubmit="triggerSaveSettings(event)">
                 @csrf
 
                 <div class="row">
@@ -93,6 +93,11 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label font-weight-bold">ID Number <span class="text-danger">*</span></label>
+                            <input type="text" name="guest_phone" class="form-control" value="{{ old('id_number') }}" required>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label font-weight-bold">Email (optional)</label>
                             <input type="email" name="guest_email" class="form-control" value="{{ old('guest_email') }}">
                         </div>
@@ -148,4 +153,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('[name="room_id"]').addEventListener('change', calculateTotal);
 });
 </script>
+
+<script>
+    // Triggering Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while a booking is being created.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
+
 @endsection

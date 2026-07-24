@@ -11,7 +11,7 @@
         </a>
     </div>
     <div class="card-body">
-        <form action="{{ route('room-types.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('room-types.store') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)"
             @csrf
             <div class="row g-4">
                         <!-- Left Column -->
@@ -62,7 +62,26 @@
                             <i class="fas fa-save me-2"></i> Save Room Type
                         </button>
                     </div>
+                    
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving room type...',
+                text: 'Please wait while a new room type is created.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection

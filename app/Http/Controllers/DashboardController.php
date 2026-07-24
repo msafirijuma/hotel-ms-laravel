@@ -132,6 +132,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(5)
                 ->get(),
+
             'recentPayments' => Payment::with(['booking.guest', 'booking.room'])
                 ->latest()
                 ->take(5)
@@ -181,28 +182,46 @@ class DashboardController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        /** @var    User $user */
+        /** @var User $user */
         $user = Auth::user();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        // Minimum user's age = 15 years
+        $minAgeDate = now()->subYears(15)->format('Y-m-d');
 
-        $data = $request->only(['name', 'phone']);
+        // Validate only phone, photo and dob
+        $request->validate(
+            [
+                'phone'      => 'required|string|max:20|unique:users,phone,' . $user->id,
+                'photo'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'birth_date' => 'nullable|date|before_or_equal:' . $minAgeDate,
+            ],
+            [
+                // Custom error message if the age validation requirement fails
+                'birth_date.before_or_equal' => 'The user must be at least 15 years old.',
+            ]
+        );
 
-        // Checking if a new photo is uploaded and handle the storage
+        // DB updating
+        $data = [
+            'phone'      => trim($request->phone),
+            'birth_date' => $request->birth_date,
+        ];
+
+        // Check if a new photo file profile exists and handle storage 
         if ($request->hasFile('photo')) {
+            // Delete old photo asset from public disk if it exists
             if ($user->photo) {
-                Storage::delete('public/' . $user->photo);
+                Storage::disk('public')->delete($user->photo);
             }
+            // Store the new image file and assign the path destination
             $data['photo'] = $request->file('photo')->store('users', 'public');
         }
 
+        // 4. Update the user record
         $user->update($data);
 
-        LogActivity::log('Profile Update', 'Has updated profile successfully!');
+        // Audit Logs
+        LogActivity::log('Profile Update', "Updated profile contact records for user: {$user->name}");
 
         return redirect()->route('my-profile')
             ->with('success', 'Profile updated successfully!');
@@ -222,7 +241,7 @@ class DashboardController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => 'required|min:8|',
             'new_password' => 'required|min:8|confirmed',
         ]);
 
@@ -239,7 +258,7 @@ class DashboardController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
-        LogActivity::log('Password Update', 'Has updated password successfully!');
+        LogActivity::log('UPDATE PWD', 'Has updated password successfully!');
 
         return redirect()->route('my-profile')
             ->with('success', 'Password updated successfully!');

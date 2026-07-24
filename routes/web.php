@@ -15,6 +15,7 @@ use App\Http\Controllers\HotelSettingController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\StaffScheduleController;
 use App\Http\Controllers\HousekeepingController;
+use App\Http\Controllers\MaintenanceLogController;
 
 
 // ====================== PUBLIC ROUTES (Anyone) ======================
@@ -77,6 +78,9 @@ Route::middleware('auth')->group(function () {
     // Staff Schedules Module
     Route::get('/staff-schedules', [StaffScheduleController::class, 'index'])->name('staff-schedules.index');
     Route::post('/staff-schedules', [StaffScheduleController::class, 'store'])->name('staff-schedules.store');
+    Route::get('/staff-scheduling/{schedule}/edit', [StaffScheduleController::class, 'edit'])->name('schedules.edit');
+    Route::put('/staff-scheduling/{schedule}', [StaffScheduleController::class, 'update'])->name('schedules.update');
+    Route::delete('/staff-scheduling/{id}', [StaffScheduleController::class, 'destroy'])->name('schedules.destroy');
 
     // Setting Module
     Route::get('/settings', [HotelSettingController::class, 'show'])->name('settings.show');
@@ -102,11 +106,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/housekeeping/dirty-rooms', [HousekeepingController::class, 'dirtyRooms'])->name('housekeeping.dirty-rooms');
 
     // Maintenance Module
-    Route::post('/housekeeping/task/{task}/report-issue', [HousekeepingController::class, 'reportIssue'])->name('housekeeping.report-issue');
-    Route::get('/maintenance/logs', [HousekeepingController::class, 'maintenanceLogs'])->name('maintenance.logs');
+    Route::get('/maintenance/logs', [MaintenanceLogController::class, 'index'])->name('maintenance-logs.index');
+    Route::post('/maintenance/{task}/report-issue', [MaintenanceLogController::class, 'reportIssue'])->name('logs.report-issue');
 
     // Mark room fixed
-    Route::post('/maintenance/{id}/fixed', [HousekeepingController::class, 'markAsFixed'])->name('maintenance.fixed');
+    Route::post('/maintenance/{id}/fixed', [MaintenanceLogController::class, 'markAsFixed'])->name('maintenance.fixed');
 
     // My Work Schedule
     Route::get('/housekeeping/my-schedule', [HousekeepingController::class, 'mySchedule'])->name('housekeeping.my-schedule');

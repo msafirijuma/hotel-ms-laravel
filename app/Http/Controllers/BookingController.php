@@ -44,6 +44,7 @@ class BookingController extends Controller
             'children'       => 'nullable|integer|min:0',
             'guest_name'     => 'required|string|max:255',
             'guest_phone'    => 'required|string|max:20',
+            'id_number'      => 'nullable|string|max:30',
             'guest_email'    => 'nullable|email|max:255',
             'notes'          => 'nullable|string',
         ]);
@@ -100,7 +101,7 @@ class BookingController extends Controller
             $room->update(['status' => 'occupied']);
 
             DB::commit(); // Commit all changes on the database
-            LogActivity::log('Create Booking', 'Has created a booking with a code: ' . $booking_code);
+            LogActivity::log('Booking Management', "Created new booking {$booking->booking_code} for guest {$booking->guest->full_name} in Room {$booking->room->room_number}");
             return redirect()->route('bookings.index')
                 ->with('success', 'New booking created successfully! Booking code: ' . $booking_code);
         } catch (\Exception $e) {
@@ -149,42 +150,53 @@ class BookingController extends Controller
             'notes'          => $request->notes,
         ]);
 
+        LogActivity::log('UPDATE BOOKING', "Has updated booking details for code {$booking->booking_code} (Guest: {$booking->guest->full_name})");
+
         return redirect()->route('bookings.index')
             ->with('success', 'Booking ' . $booking->booking_code . ' updated successfully!');
     }
 
     // Check-in and Check-out functionality
+
     public function checkInOut()
     {
         $today = now()->format('Y-m-d');
 
-        // Recent Check-ins & Check-outs
+        // Recent Check-ins (Using advanced parameter grouping bracket bounds)
         $recentCheckIns = Booking::with(['guest', 'room'])
-            ->where('status', 'checked_in')
-            ->orWhere('status', 'confirmed')
+            ->where(function ($query) {
+                $query->where('status', 'checked_in')
+                    ->orWhere('status', 'confirmed');
+            })
             ->latest('check_in_date')
             ->take(5)
             ->get();
 
+        // Recent Check-outs
         $recentCheckOuts = Booking::with(['guest', 'room'])
             ->where('status', 'checked_out')
             ->latest('check_out_date')
             ->take(5)
             ->get();
 
-        // Pending Check-ins
+        // Pending Check-ins arriving today
         $pendingCheckIns = Booking::with(['guest', 'room'])
             ->where('check_in_date', $today)
             ->where('status', 'confirmed')
             ->get();
 
-        // Pending Check-outs
+        // Pending Check-outs leaving today
         $pendingCheckOuts = Booking::with(['guest', 'room'])
             ->where('check_out_date', $today)
             ->where('status', 'checked_in')
             ->get();
 
-        return view('bookings.checkin-checkout', compact('pendingCheckIns', 'pendingCheckOuts', 'recentCheckIns', 'recentCheckOuts'));
+        return view('bookings.checkin-checkout', compact(
+            'pendingCheckIns',
+            'pendingCheckOuts',
+            'recentCheckIns',
+            'recentCheckOuts'
+        ));
     }
 
     /**
@@ -203,6 +215,7 @@ class BookingController extends Controller
 
         // Update room status
         $booking->room->update(['status' => 'occupied']);
+        LogActivity::log('Front Desk', "Has checked in guest {$booking->guest->full_name} into Room {$booking->room->room_number} (Code: {$booking->booking_code})");
 
         return redirect()->route('bookings.checkin-checkout')
             ->with('success', 'Guest checked in successfully!');
@@ -222,8 +235,9 @@ class BookingController extends Controller
             'check_out_date' => now()->format('Y-m-d')
         ]);
 
-        // Update room status back to available
-        $booking->room->update(['status' => 'available']);
+        // Update room status to dirty for cleaning
+        $booking->room->update(['status' => 'dirty']);
+        LogActivity::log('Front Desk', "Checked out guest {$booking->guest->full_name} from Room {$booking->room->room_number}. Room set to DIRTY.");
 
         return redirect()->route('bookings.checkin-checkout')
             ->with('success', 'Guest checked out successfully!');
@@ -236,14 +250,18 @@ class BookingController extends Controller
         ]);
 
         $booking->update(['status' => $request->status]);
+        LogActivity::log('UPDATE BOOKING', "Has changed booking status for code {$booking->booking_code} to " . strtoupper($booking->status));
 
-        return back()->with('success', 'Hali ya booking imesasishwa kuwa ' . ucfirst($request->status));
+        return back()->with('success', 'Booking status updated to ' . ucfirst($request->status));
     }
 
 
     public function destroy(Booking $booking)
     {
+        $code = $booking->booking_code;
+        $guestName = $booking->guest->full_name ?? 'Guest';
         $booking->delete();
+        LogActivity::log('DELETE BOOKING', "Has permanently deleted booking record {$code} for guest {$guestName}");
         return redirect()->route('bookings.index')
             ->with('success', 'Booking deleted successfully!');
     }

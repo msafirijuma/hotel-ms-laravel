@@ -132,7 +132,7 @@
 <!-- Datatable -->
 <script>
     $(document).ready(function() {
-        $('#bookingsTable, #paymentsTable, #roomsTable, #roomTypesTable, #usersTable, #shiftTable, #staffTable, #housekeepingTable').DataTable({
+        $('#bookingsTable, #paymentsTable, #roomsTable, #roomTypesTable, #usersTable, #shiftTable, #staffTable, #housekeepingTable, #maintenanceTable').DataTable({
             "language": {
                 "search": "Search:",
                 "lengthMenu": "Show _MENU_ entries",

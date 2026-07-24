@@ -13,13 +13,6 @@
         </div>
         
         <div class="card-body p-4">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
             <div class="table-responsive">
                 <table class="table table-striped table-hover table-bordered align-middle mb-0" id="housekeepingTable" style="width:100%">
                     <thead class="table-dark">

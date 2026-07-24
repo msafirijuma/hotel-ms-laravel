@@ -101,27 +101,32 @@
                                     </a>
                                 @else
                                     @if($booking->payments && $booking->payments->count() > 0)
-                                        <a href="{{ route('payments.invoice', $booking->payments->last()->id) }}" class="btn btn-sm btn-outline-primary py-1" title="View Invoice">
+                                        <a href="{{ route('payments.invoice', $booking->payments->last()->id) }}" onclick="triggerReceipt(event, this.href)" class="btn btn-sm btn-outline-primary py-1" title="View Invoice">
                                             <i class="fas fa-file-invoice"></i>
                                         </a>
                                     @endif
                                 @endif
 
-                                <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-sm btn-info text-white py-1" title="View Details">
+                                <!-- View button-->
+                                <button type="button" onclick="triggerView('{{ route('bookings.show', $booking->id) }}')" class="btn btn-sm btn-info text-white py-1" title="View Booking">
                                     <i class="fas fa-eye"></i>
-                                </a>
-                                
-                                <a href="{{ route('bookings.edit', $booking->id) }}" class="btn btn-sm btn-warning text-white py-1" title="Edit Booking">
+                                </button>
+
+                                <!-- Edit button -->
+                                <button type="button" onclick="triggerEdit(event, '{{ route('bookings.edit', $booking->id) }}')" class="btn btn-sm btn-warning py-1" title="Edit Booking">
                                     <i class="fas fa-edit"></i>
-                                </a>
-                                
-                                <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST" class="d-inline m-0">
+                                </button>
+
+                                <!-- Hidden Delete Form -->
+                                <form id="delete-booking-form-{{ $booking->id }}" action="{{ route('bookings.destroy', $booking->id) }}" method="POST" class="d-none">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger py-1" onclick="return confirm('Delete this booking?')" title="Delete Booking">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
                                 </form>
+
+                                <!-- Delete button -->
+                                <button type="button" onclick="triggerDelete({{ $booking->id }}, '{{ $booking->booking_code }}')" class="btn btn-sm btn-danger py-1" title="Delete Booking">
+                                    <i class="fas fa-trash"></i>
+                                </button>
 
                             </div>
                         </td>
@@ -137,4 +142,90 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Global simple loading spinner function
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // Trigger concise view details spinner loader
+    function triggerView(url) {
+        showPageLoader('Loading booking...');
+        window.location.href = url;
+    }
+
+    // Trigger concise edit form layout spinner loader
+    function triggerEdit(event, url) {
+        event.preventDefault(); // Stop rapid automated link transitions
+        showPageLoader('Loading booking update form...');
+        window.location.href = url;
+    }
+
+    // SweetAlert handling cancellation request workflow layout matrix
+    function triggerCancel(id, code) {
+        Swal.fire({
+            title: 'Cancel this booking?',
+            text: `You will cancel booking "${code}" and release the room!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6c757d',
+            cancelButtonColor: '#0d6efd',
+            confirmButtonText: 'Yes, Cancel it!',
+            cancelButtonText: 'Keep Active',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-secondary btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-primary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showPageLoader('Canceling booking...');
+                document.getElementById('cancel-booking-form-' + id).submit();
+            }
+        });
+    }
+
+    // Delete booking
+    function triggerDelete(id, code) {
+        Swal.fire({
+            title: 'Delete this booking?',
+            text: `You will permanently delete booking "${code}" from the database!`,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash"></i> Yes, Delete!',
+            cancelButtonText: 'Dismiss',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-danger btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showPageLoader('Deleting booking...');
+                document.getElementById('delete-booking-form-' + id).submit();
+            }
+        });
+    }
+
+    // Loading receipt
+    function triggerReceipt(event, url) {
+        event.preventDefault(); 
+        showPageLoader('Please be patient while a receipt is being prepared...');
+        window.location.href = url;
+    }
+</script>
 @endsection

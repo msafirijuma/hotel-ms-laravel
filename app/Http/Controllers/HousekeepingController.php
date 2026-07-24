@@ -124,10 +124,10 @@ class HousekeepingController extends Controller
 
             Room::where('id', $request->room_id)->update(['status' => 'cleaning']);
 
-            LogActivity::log('Housekeeping', 'Has manually assign this room to housekeeper.');
+            LogActivity::log('Housekeeping', 'Has manually assign room no. ' . $request->room_id .  ' to housekeeper.');
         });
 
-        // Back to root view (hosuekeeping)
+        // Back to root view (housekeeping)
         return redirect()->route('housekeeping.index')->with('success', 'Task assigned successfully!');
     }
 
@@ -293,7 +293,7 @@ class HousekeepingController extends Controller
         // Rooms with status maintenance
         $maintenanceRooms = Room::with('roomType')
             ->where('status', 'maintenance')
-            ->orderBy('room_number')
+            ->orderBy('room_number', 'asc')
             ->get();
 
         return view('housekeeping.maintenance-logs', compact('maintenanceRooms'));
@@ -304,24 +304,26 @@ class HousekeepingController extends Controller
      */
     public function markAsFixed($id)
     {
-        // Admin user only
-        if (!auth()::user()->hasRole('admin') && auth()->user()->role !== 'admin') {
+        $user = Auth::user();
+        /** @var User $user */
+
+        // Checking if role === admin
+        if (!$user->hasRole('admin') && $user->role !== 'admin') {
             abort(403, 'Access denied.');
         }
 
         $room = Room::findOrFail($id);
         $roomNumber = $room->room_number;
-
         DB::transaction(function () use ($room) {
             // After maintenance is fixed, we mark the room as dirty for final cleaning
             $room->update([
                 'status' => 'dirty',
-                'notes' => 'Maintenance issue fixed. It is now ready for final cleaning.'
+                'description' => 'Maintenance issue fixed. It is now ready for final cleaning.'
             ]);
 
             LogActivity::log('Maintenance', 'Room No. ' . $room->room_number . ' has been fixed and returned to the cleaning queue.');
         });
 
-        return back()->with('success', 'Room No. ' . $roomNumber . ' has been updated! It has been returned to the DIRTY status for final cleaning.');
+        return back()->with('success', 'Room No. ' . $roomNumber . ' has been fixed! It is now in a cleaning queue');
     }
 }

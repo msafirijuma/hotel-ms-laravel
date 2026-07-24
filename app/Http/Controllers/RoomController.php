@@ -39,7 +39,7 @@ class RoomController extends Controller
         LogActivity::log('CREATE ROOM', 'Has created Room No. : ' . $request->room_number . ' status.');
 
         return redirect()->route('rooms.index')
-            ->with('success', 'Room added successfully!');
+            ->with('success', 'Room No. ' . $request->room_number . ' created successfully!');
     }
 
     public function edit(Room $room)
@@ -65,7 +65,7 @@ class RoomController extends Controller
         LogActivity::log('UPDATE ROOM', 'Has updated Room No. ' . $room->room_number . ' successfully.');
 
         return redirect()->route('rooms.index')
-            ->with('success', 'Room updated successfully!');
+            ->with('success', 'Room No. ' . $room->room_number . ' updated successfully!');
     }
 
     public function destroy(Room $room)
@@ -99,7 +99,7 @@ class RoomController extends Controller
             'status' => $request->status
         ]);
 
-        LogActivity::log('ROOM STATUS', 'Has updated status of Room No. ' . $room->room_number . ' to ' . ucfirst($request->status));
+        LogActivity::log('UPDATE ROOM STATUS', 'Has updated status of Room No. ' . $room->room_number . ' to ' . ucfirst($request->status));
 
         return back()->with('success', 'Status of room No. ' . $room->room_number . ' updated to ' . ucfirst($request->status));
     }

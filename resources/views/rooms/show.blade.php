@@ -88,12 +88,12 @@
 
                     <!-- Action buttons -->
                     <div class="mt-4 pt-3 border-top d-flex gap-2">
-                        <a href="{{ route('rooms.edit', $room->id) }}" class="btn btn-warning text-dark fw-bold px-4">
+                        <a onclick="triggerEdit('{{ route('rooms.edit', $room->id) }}')" class="btn btn-warning text-dark fw-bold px-4">
                             <i class="fas fa-edit me-1"></i> Edit Room
                         </a>
                         
                         @if($room->status == 'available')
-                            <a href="{{ route('bookings.create', ['room_id' => $room->id]) }}" class="btn btn-success fw-bold px-4">
+                            <a onclick="triggerAddBooking({{ route('bookings.create', ['room_id' => $room->id]) }})" class="btn btn-success fw-bold px-4">
                                 <i class="fas fa-calendar-plus me-1"></i> Add Booking
                             </a>
                         @endif
@@ -103,4 +103,31 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script>
+    // Loader function during page navigation
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    function triggerAddBooking(url) {
+        showPageLoader('New booking form is being prepared...');
+        window.location.href = url;
+    }
+
+    // Edit Action Loading
+    function triggerEdit(url) {
+        showPageLoader('We are preparing room update form...');
+        window.location.href = url;
+    }
+    </script>
 @endsection

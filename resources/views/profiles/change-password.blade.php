@@ -17,7 +17,7 @@
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
 
-                        <form action="{{ route('password.update') }}" method="POST">
+                        <form action="{{ route('password.update') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveChanges(event) ">
                             @csrf
                             @method('PUT')
 
@@ -52,4 +52,22 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering Save setting form
+    function triggerSaveChanges(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while a new password is saved.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection

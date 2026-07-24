@@ -21,9 +21,9 @@ class StaffScheduleController extends Controller
         $today = Carbon::today()->format('Y-m-d');
 
         // load housekeepers
-        $housekeepers = User::role('housekeeper') 
-                    ->orderBy('name', 'asc')
-                    ->get();
+        $housekeepers = User::role('housekeeper')
+            ->orderBy('name', 'asc')
+            ->get();
 
         // all shifts
         $shifts = Shift::orderBy('start_time', 'asc')->get();
@@ -51,7 +51,7 @@ class StaffScheduleController extends Controller
 
         // Multi-date range
         $period = CarbonPeriod::create($request->start_date, $request->end_date);
-        
+
         $staff = User::findOrFail($request->user_id);
         $shift = Shift::findOrFail($request->shift_id);
 
@@ -68,8 +68,98 @@ class StaffScheduleController extends Controller
         }
 
         // Audit Logs
-        LogActivity::log('Schedule Staff', 'Assigned a schedule to staff ' . $staff->name . ' from ' . $request->start_date . ' to ' . $request->end_date);
+        LogActivity::log('CREATE SCHEDULE', 'Has assigned a schedule to staff ' . $staff->name . ' from ' . $request->start_date . ' to ' . $request->end_date);
 
-        return redirect()->route('staff-schedules.index')->with('success', 'Schedule assigned successfully!');
+        return redirect()->route('staff-schedules.index')->with('success', 'Schedule assigned successfully for staff ' . $staff->name);
+    }
+
+    /**
+     * Show the form for editing the specified schedule profile.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        // Find specific schedule record 
+        $schedule = StaffSchedule::findOrFail($id);
+
+        // Load housekeepers & shifts
+        $housekeepers = User::orderBy('name', 'asc')->get();
+        $shifts = Shift::orderBy('start_time', 'asc')->get();
+
+        return view('staff-schedules.edit', compact('schedule', 'housekeepers', 'shifts'));
+    }
+
+    /**
+     * Update the specified schedule
+     * @param  Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, $id)
+    {
+        // Validation
+        $request->validate([
+            'user_id'    => 'required|exists:users,id',
+            'shift_id'   => 'required|exists:shifts,id',
+            'shift_date' => 'required|date',
+            'notes'      => 'nullable|string|max:500',
+        ]);
+
+        $schedule = StaffSchedule::findOrFail($id);
+
+        // Check if there is another duplicate schedule entry for this user on the new date
+        $duplicate = StaffSchedule::where('user_id', $request->user_id)
+            ->where('shift_date', $request->shift_date)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'This staff member is already scheduled on this date.');
+        }
+
+        // Updating db
+        $schedule->update([
+            'user_id'    => $request->user_id,
+            'shift_id'   => $request->shift_id,
+            'shift_date' => $request->shift_date,
+            'notes'      => trim($request->notes),
+        ]);
+
+        $staffName = $schedule->user->name ?? 'Staff';
+        $formattedDate = Carbon::parse($request->shift_date)->format('d/m/Y');
+
+        // Audit Logs
+        LogActivity::log('UPDATE SCHEDULE', "Has update schedule duty for {$staffName} on {$formattedDate}");
+
+        // Redirect back index
+        return redirect()->route('staff-schedules.index')->with('success', "{$staffName}'s schedule updated successfully.");
+    }
+
+
+    /**
+     * Remove the specified staff schedule 
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy($id)
+    {
+        // Find the specific schedule entry or fail with 404
+        $schedule = StaffSchedule::with('user')->findOrFail($id);
+
+        // Store staff name and date for logging purposes
+        $staffName = $schedule->user->name ?? 'Staff';
+        $shiftDate = Carbon::parse($schedule->shift_date)->format('d/m/Y');
+
+        // Delete the record from the database
+        $schedule->delete();
+
+        // Audit Logs
+        LogActivity::log('DELETE SCHEDULE', "Has removed shift duty for {$staffName} on date {$shiftDate}");
+
+        // Redirect back 
+        return back()->with('success', "Schedule duty for {$staffName} on {$shiftDate} has been removed successfully!");
     }
 }

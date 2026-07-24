@@ -11,13 +11,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     <!-- Stats Card -->
     <div class="row mb-4">
         <div class="col-md-12">
@@ -87,11 +80,11 @@
                                                 <h5 class="modal-title fw-bold"><i class="fas fa-tools me-2"></i>Report Issue: Room {{ $task->room_number }}</h5>
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="{{ route('housekeeping.report-issue', $task->id) }}" method="POST">
+                                            <form action="{{ route('logs.report-issue', $task->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <label class="form-label fw-bold text-dark">Describe what is the problem (Lights, AC, Bed, Water supply, etc)</label>
-                                                    <textarea name="issue_notes" class="form-control" rows="4" required placeholder="Mfano: AC haitoi baridi kabisa au Kioo cha bafuni kimevunjika..."></textarea>
+                                                    <textarea name="issue_description" class="form-control" rows="4" required placeholder="Mfano: AC haitoi baridi kabisa au Kioo cha bafuni kimevunjika..."></textarea>
                                                 </div>
                                                 <div class="modal-footer bg-light">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -176,43 +169,44 @@
     <!-- Recent cleaning -->
     <div class="row mt-3 mb-5 pb-3">
         <div class="col-12">
-                <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2"></i>Recent Cleaning</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped table-bordered align-middle" id="housekeepingTable">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Room Number</th>
-                        <th>Room Type</th>
-                        <th>Cleaned At</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recentTasks as $task)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td><span class="badge bg-success fs-6">Room No. {{ $task->room->room_number }}</span></td>
-                        <td><strong>{{ $task->room->roomType->type_name ?? 'Room' }}</strong></td>
-                        <td class="font-monospace">{{ \Carbon\Carbon::parse($task->completed_at)->format('d M Y, h:i A') }}</td>
-                        <td>
-                            <span class="badge bg-success">Completed</span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">You did not accomplish any task yet.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2"></i>Recent Cleaning</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-bordered align-middle" id="housekeepingTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Room Number</th>
+                                <th>Room Type</th>
+                                <th>Cleaned At</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentTasks as $task)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td><span class="badge bg-success fs-6">Room No. {{ $task->room->room_number }}</span></td>
+                                <td><strong>{{ $task->room->roomType->type_name ?? 'Room' }}</strong></td>
+                                <td class="font-monospace">{{ \Carbon\Carbon::parse($task->completed_at)->format('d M Y, h:i A') }}</td>
+                                <td>
+                                    <span class="badge bg-success">Completed</span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">You did not accomplish any task yet.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-        </div>
-    </div>
+
     <!--Dirty Rooms -->
     <div class="row mt-3 mb-5 pb-3">
         <div class="col-12">

@@ -51,8 +51,8 @@
                                 <span class="badge bg-success font-weight-bold">{{ $pay->status }}</span>
                             </td>
                             <td class="text-center">
-                                <!-- Invoice/Receipt -->
-                                <a href="{{ route('payments.invoice', $pay->id) }}" class="btn btn-sm btn-outline-primary fw-bold" title="View & Print Receipt">
+                                <!-- View receipt -->
+                                <a href="{{ route('payments.invoice', $pay->id) }}" onclick="triggerReceipt(event, this.href)" class="btn btn-sm btn-outline-primary fw-bold" title="View & Print Receipt">
                                     <i class="fas fa-file-invoice"></i> Receipt
                                 </a>
                             </td>
@@ -64,4 +64,27 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Display background process spinner
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Generating Receipt',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // Loading receipt
+    function triggerReceipt(event, url) {
+        event.preventDefault(); 
+        showPageLoader('Please be patient while a receipt is being prepared...');
+        window.location.href = url;
+    }
+</script>
 @endsection
