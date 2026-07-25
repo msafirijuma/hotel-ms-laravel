@@ -98,7 +98,6 @@
                                 <button type="button" onclick="triggerDelete({{ $room->id }}, '{{ $room->room_number }}')" class="btn btn-sm btn-danger py-1" title="Delete Room">
                                     <i class="fas fa-trash"></i>
                                 </button>
-
                             </div>
                         </td>
                     </tr>

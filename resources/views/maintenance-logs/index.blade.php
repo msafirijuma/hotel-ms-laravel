@@ -60,14 +60,14 @@
                                 </span>
                             </td>
 
-                            @if(auth()->user()->hasRole('admin'))
+                            <!-- Admin -->
+                            @if(auth()->user()->hasRole('admin') || auth()->user()->role === 'admin')
                                 <td class="text-center">
-                                    @if($log->status != 'fixed')
-                                        <form action="{{ route('maintenance.fixed', $log) }}" method="POST" class="d-inline">
+                                    @if ($log->status != 'fixed')
+                                        <form action="{{ route('maintenance.fixed', $log->room->id) }}" method="POST" class="m-0 p-0 d-inline mark-fixed-form" data-room="{{ $log->room->room_number }}">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success" 
-                                                    onclick="return confirm('Mark this issue as fixed?')">
-                                                <i class="bi bi-check-circle"></i> Mark Fixed
+                                            <button type="submit" class="btn btn-sm btn-success fw-bold px-3 shadow-sm">
+                                                <i class="fas fa-check me-1"></i> Mark Fixed
                                             </button>
                                         </form>
                                     @else
