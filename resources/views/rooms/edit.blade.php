@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('rooms.update', $room->id) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
+            <form action="{{ route('rooms.update', $room->id) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveRoom(event)">
                 @csrf
                 @method('PUT')
 
@@ -107,7 +107,7 @@
 
                 <div class="text-end mt-4 border-top pt-3">
                     <button type="submit" class="btn btn-warning btn-lg px-5 text-dark font-weight-bold">
-                        <i class="bi bi-cloud-arrow-up-fill"></i> Save Changes
+                        <i class="fas fa-arrow-up"></i> Save Changes
                     </button>
                 </div>
             </form>
@@ -131,9 +131,10 @@
     }
 </script>
 
+@section('scripts')
 <script>
     // Triggering Save setting form
-    function triggerSaveSettings(event) {
+    function triggerSaveRoom(event) {
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'Updating room...',

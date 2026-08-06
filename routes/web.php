@@ -103,6 +103,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/housekeeping/history', [HousekeepingController::class, 'cleaningHistory'])->name('housekeeping.history');
 
     // Dirty rooms
+    Route::get('/housekeeping/my-tasks', [HousekeepingController::class, 'myTasks'])->name('housekeeping.my-tasks');
+
+    // Dirty rooms
     Route::get('/housekeeping/dirty-rooms', [HousekeepingController::class, 'dirtyRooms'])->name('housekeeping.dirty-rooms');
 
     // Maintenance Module
@@ -110,7 +113,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/maintenance/{task}/report-issue', [MaintenanceLogController::class, 'reportIssue'])->name('logs.report-issue');
 
     // Mark room fixed
-    Route::post('/maintenance/{id}/fixed', [MaintenanceLogController::class, 'markAsFixed'])->name('maintenance.fixed');
+    Route::post('/maintenance/{log}/fixed', [MaintenanceLogController::class, 'markAsFixed'])->name('maintenance.fixed');
 
     // My Work Schedule
     Route::get('/housekeeping/my-schedule', [HousekeepingController::class, 'mySchedule'])->name('housekeeping.my-schedule');

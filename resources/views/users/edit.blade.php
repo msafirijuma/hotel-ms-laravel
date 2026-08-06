@@ -11,7 +11,7 @@
         </a>
     </div>
     <div class="card-body">
-        <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveChanges(event)">
             @csrf
             @method('PUT')
 
@@ -89,4 +89,22 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering Save setting form
+    function triggerSaveChanges(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving changes...',
+                text: 'Please wait while a user is being updated.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection

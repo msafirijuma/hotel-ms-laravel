@@ -29,9 +29,9 @@
                             <th>Room No.</th>
                             <th>Issue Category</th>
                             <th>Issue Description</th>
+                            <th>Status</th>
                             <th>Reported By</th>
                             <th>Reported At</th>
-                            <th>Status</th>
                             @if(auth()->user()->hasRole('admin'))
                                 <th class="text-center">Action</th>
                             @endif
@@ -52,19 +52,19 @@
                                     {{ Str::limit($log->issue_description, 80) }}
                                 </div>
                             </td>
-                            <td>{{ $log->reportedBy->name ?? 'System' }}</td>
-                            <td>{{ $log->created_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 <span class="badge bg-{{ $log->status == 'fixed' ? 'success' : 'danger' }}">
                                     {{ ucfirst($log->status) }}
                                 </span>
                             </td>
+                            <td>{{ $log->reportedBy->name ?? 'System' }}</td>
+                            <td>{{ $log->created_at->format('d/m/Y H:i') }}</td>
 
                             <!-- Admin -->
                             @if(auth()->user()->hasRole('admin') || auth()->user()->role === 'admin')
                                 <td class="text-center">
                                     @if ($log->status != 'fixed')
-                                        <form action="{{ route('maintenance.fixed', $log->room->id) }}" method="POST" class="m-0 p-0 d-inline mark-fixed-form" data-room="{{ $log->room->room_number }}">
+                                        <form action="{{ route('maintenance.fixed', $log) }}" method="POST" class="m-0 p-0 d-inline mark-fixed-form" data-room="{{ $log->room->room_number }}">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success fw-bold px-3 shadow-sm">
                                                 <i class="fas fa-check me-1"></i> Mark Fixed

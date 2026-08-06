@@ -29,6 +29,7 @@ class HousekeepingController extends Controller
     {
         /** @var User $user */
         $user = auth::user();
+
         $is_admin = $user->hasRole('admin') || $user->role === 'admin';
         $today = \Carbon\Carbon::today()->format('Y-m-d');
 
@@ -254,5 +255,34 @@ class HousekeepingController extends Controller
             ->get();
 
         return view('housekeeping.dirty-rooms', compact('rooms'));
+    }
+
+    /**
+     * Get pending & in-progress tasks for the logged-in housekeeper
+     */
+    public function myTasks()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $tasks = HousekeepingTask::with(['room.roomType'])
+            ->where('assigned_to', $user->id)
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->latest('created_at')
+            ->get();
+
+        $pendingCount = $tasks->where('status', 'pending')->count();
+        $inProgressCount = $tasks->where('status', 'in_progress')->count();
+        $completedToday = HousekeepingTask::where('assigned_to', $user->id)
+            ->where('status', 'completed')
+            ->whereDate('completed_at', today())
+            ->count();
+
+        return view('housekeeping.my-tasks', compact(
+            'tasks',
+            'pendingCount',
+            'inProgressCount',
+            'completedToday'
+        ));
     }
 }

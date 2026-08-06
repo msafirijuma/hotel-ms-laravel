@@ -124,7 +124,7 @@
                 <span class="text-uppercase text-muted fw-bold small tracking-wider px-3">Staff Shift</span>
             </li>
             <li class="nav-item mb-1">
-                <a href="{{ route('housekeeping.my-schedule') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'my-tasks') active @endif">
+                <a href="{{ route('housekeeping.my-schedule') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'housekeeping.my-schedule') active @endif">
                     <i class="fas fa-tasks me-3"></i> My Shift
                 </a>
             </li>
@@ -135,28 +135,31 @@
             <li class="nav-item mt-3 mb-2">
                 <span class="text-uppercase text-muted fw-bold small tracking-wider px-3">Housekeeping</span>
             </li>
-            <li class="nav-item mb-1">
-                <a href="{{ route('housekeeping.my-schedule') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'my-tasks') active @endif">
-                    <i class="fas fa-tasks me-3"></i> My Schedule
-                </a>
-            </li>
             <!-- Assigned tasks for housekeeping staff -->
-            <li class="nav-item">
-                <a class="nav-link position-relative" href="#">
-                    <i class="fas fa-bell"></i>
-                    <span>Housekeeping Tasks</span>
-                        <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                            <span class="visually-hidden">New tasks</span>
+            <li class="nav-item mb-1">
+                <a href="{{ route('housekeeping.my-tasks') }}" class="nav-link position-relative @if (Route::currentRouteName() == 'housekeeping.my-tasks') active @endif" >
+                    <i class="bi bi-bell"></i>
+                    <span>My Tasks</span>
+                    @php
+                        $pendingCount = \App\Models\HousekeepingTask::where('assigned_to', auth()->id())
+                            ->whereIn('status', ['pending', 'in_progress'])
+                            ->count();
+                    @endphp
+                    @if($pendingCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ $pendingCount }}
+                            <span class="visually-hidden">pending tasks</span>
                         </span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a href="{{ route('housekeeping.dirty-rooms') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'my-tasks') active @endif">
+                <a href="{{ route('housekeeping.dirty-rooms') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'housekeeping.dirty-rooms') active @endif">
                     <i class="fas fa-bed me-3"></i> Dirty Rooms
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a href="{{ route('housekeeping.history') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'my-tasks') active @endif">
+                <a href="{{ route('housekeeping.history') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'housekeeping.history') active @endif">
                     <i class="fas fa-history me-3"></i> Tasks History
                 </a>
             </li>

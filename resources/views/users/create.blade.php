@@ -7,11 +7,11 @@
     <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
         <h5><i class="fas fa-user-plus"></i> Add New User</h5>
         <a href="{{ route('users.index') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-            <i class="fas fa-arrow-left"></i> Back to Users List
+            <i class="fas fa-arrow-left me-1"></i> Back to Users List
         </a>
     </div>
     <div class="card-body">
-        <form action="{{ route('users.store') }}" method="POST">
+        <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveUser(event)">
             @csrf
 
             <div class="row">
@@ -59,4 +59,22 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Triggering Save setting form
+    function triggerSaveUser(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving user...',
+                text: 'Please wait while a new user is being saved to database.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection

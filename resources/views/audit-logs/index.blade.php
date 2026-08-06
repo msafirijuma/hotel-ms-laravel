@@ -80,7 +80,7 @@
 <script>
 $(document).ready(function() {
     $('#auditLogsTable').DataTable({
-        "order": [[0, "desc"]],
+        "order": [[0, "asc"]],
         "pageLength": 25,
         "responsive": true,
         "dom": 'Bfrtip',

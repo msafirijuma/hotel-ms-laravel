@@ -40,17 +40,28 @@
                             {{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : '---' }}
                         </td>
                         <td class="text-center">
-                            <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-secondary" title="View User">
+                            <!-- VIEW BUTTON-->
+                            <button type="button" onclick="triggerView('{{ route('users.show', $user) }}')" class="btn btn-sm btn-info text-white py-1" title="View user Details">
                                 <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning" title="Edit User">
+                            </button>
+
+                            <!-- EDIT BUTTON-->
+                            <button type="button" onclick="triggerEdit('{{ route('users.edit', $user) }}')" class="btn btn-sm btn-warning py-1" title="Edit user Info">
                                 <i class="fas fa-edit"></i>
-                            </a>
+                            </button>
+
                             @if($user->id != auth()->id())
-                                <button type="button" class="btn btn-sm btn-danger"  title="Delete User"
-                                        data-bs-toggle="modal" data-bs-target="#deleteModal{{ $user->id }}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                        
+                            <!-- Laravel Delete Form Component-->
+                            <form id="delete-user-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-none">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+
+                            <!-- DELETE BUTTON-->
+                            <button type="button" onclick="triggerDelete({{ $user->id }}, '{{ $user->name }}')" class="btn btn-sm btn-danger py-1" title="Delete user">
+                                <i class="fas fa-trash"></i>
+                            </button>
                             @else
                                 <button class="btn btn-sm btn-secondary" disabled title="Cannot delete yourself">
                                     <i class="fas fa-trash-alt"></i>
@@ -60,7 +71,7 @@
                     </tr>
 
                     <!-- Delete Modal -->
-                    <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1">
+                    {{-- <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header bg-danger text-white">
@@ -81,11 +92,74 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Loader function during page navigation
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // View Action Loading
+    function triggerView(url) {
+        showPageLoader('We are opening the profile and user details...');
+        window.location.href = url;
+    }
+
+    // Edit Action Loading
+    function triggerEdit(url) {
+        showPageLoader('We are preparing user update form...');
+        window.location.href = url;
+    }
+
+    // SweetAlert Delete Action
+    function triggerDelete(id, userNumber) {
+        Swal.fire({
+            title: 'Are you sure you want to delete?',
+            text: `You will permanently remove "user No. ${userNumber}" from the hotel system!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545', 
+            cancelButtonColor: '#6c757d',  
+            confirmButtonText: '<i class="fas fa-trash"></i> Yes, Delete!',
+            cancelButtonText: 'No, Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-danger btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Loader during the deletion process
+                Swal.fire({
+                    title: '<span class="text-danger"><i class="fas fa-trash me-2"></i>Deleting...</span>',
+                    text: 'Please wait while the user is being deleted from the database.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // submit form of selected user
+                document.getElementById('delete-user-form-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

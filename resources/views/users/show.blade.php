@@ -41,12 +41,12 @@
                 </div>
 
                 <!-- Action buttons -->
-                <a href="{{ route('users.edit', $user) }}" class="btn btn-primary w-100 mb-2">
+                <button onclick="triggerEditProfile('{{ route('users.edit', $user) }}')" class="btn btn-primary w-100 mb-2">
                     <i class="fas fa-edit"></i> Edit Profile
-                </a>
-                <a href="{{ route('password.change') }}" class="btn btn-outline-primary w-100">
+                </button>
+                <button onclick="triggerChangePassword('{{ route('password.change') }}')" class="btn btn-outline-primary w-100">
                     <i class="fas fa-key"></i> Change Password
-                </a>
+                </button>
             </div>
 
             <!-- Staff Information -->
@@ -85,4 +85,32 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // Change Password Loading
+    function triggerChangePassword(url) {
+        showPageLoader('Preparing update password form...');
+        window.location.href = url;
+    }
+
+    // Edit Action Loading
+    function triggerEditProfile(url) {
+        showPageLoader('Preparing edit profile form...');
+        window.location.href = url;
+    }
+
+</script>
 @endsection

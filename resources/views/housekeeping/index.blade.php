@@ -23,7 +23,7 @@
                             <th>Status</th>
                             <th>Assigned By</th>
                             <th>Assigned At</th>
-                            <th class="text-center">Quick Action</th>
+                            <th class="text-center">Completed At</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,30 +54,18 @@
                             <td class="small text-muted font-monospace">
                                 {{ \Carbon\Carbon::parse($task->assigned_at)->format('d M, h:i A') }}
                             </td>
+                            <!-- Admin (time of completion) -->
+                            
                             <td class="text-center">
-                                <!-- Quick actions -> changing task status -->
-                                
-                                @if($task->status == 'pending')
-                                    <form action="{{ route('housekeeping.tasks.start', $task->id) }}" method="POST" class="m-0 p-0 d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-info text-white fw-bold px-3">
-                                            <i class="fas fa-play me-1"></i> Start Work
-                                        </button>
-                                    </form>
-                                @elseif($task->status == 'in_progress')
-                                    <form action="{{ route('housekeeping.tasks.complete', $task->id) }}" method="POST" class="m-0 p-0 d-inline" onsubmit="return confirm('Je, una uhakika usafi umekamilika na chumba kipo safi sasa hivi?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-success fw-bold px-3">
-                                            <i class="fas fa-check-circle me-1"></i> Mark Done
-                                        </button>
-                                    </form>
-                                @else
-                                    <!-- if task is done, display time of completion -->
+                                @if($task->status === 'completed' && $task->completed_at)
                                     <span class="text-success small fw-bold">
-                                        <i class="fas fa-check-double"></i> Cleaned at {{ \Carbon\Carbon::parse($task->completed_at)->format('d M, h:i A') }}
+                                        <i class="bi bi-check-circle-fill"></i> 
+                                        Cleaned at {{ \Carbon\Carbon::parse($task->completed_at)->format('d M, h:i A') }}
                                     </span>
+                                @elseif($task->status === 'in_progress')
+                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                @else
+                                    <span class="text-muted small">---</span>
                                 @endif
                             </td>
                         </tr>

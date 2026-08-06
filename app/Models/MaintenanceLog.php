@@ -13,6 +13,7 @@ class MaintenanceLog extends Model
         'room_id',
         'reported_by',
         'fixed_by',
+        'category',
         'issue_description',
         'status',
         'fixed_at'

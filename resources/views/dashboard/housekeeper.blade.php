@@ -54,7 +54,7 @@
 
                         <div class="mt-4 text-center">
                             @if($task->status == 'pending')
-                                <form method="POST" action="{{ route('housekeeping.tasks.start', $task->id) }}" class="d-inline" onsubmit="return confirm('You are about to start this task now. Are you sure?')">
+                                <form method="POST" action="{{ route('housekeeping.tasks.start', $task->id) }}" class="d-inline start-task-form" data-room="{{ $task->room->room_number }}">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn btn-warning btn-lg px-5 text-dark font-weight-bold shadow-sm">
@@ -62,7 +62,7 @@
                                     </button>
                                 </form>
                             @elseif($task->status == 'in_progress')
-                                <form method="POST" action="{{ route('housekeeping.tasks.complete', $task->id) }}" class="d-inline" onsubmit="return confirm('Are you sure the cleaning is complete?')">
+                                <form method="POST" action="{{ route('housekeeping.tasks.complete', $task->id) }}" class="d-inline finish-task-form" data-room="{{ $task->room->room_number }}">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
@@ -72,6 +72,7 @@
                                 <button type="button" class="btn btn-outline-danger btn-sm mt-2 border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#reportIssueModal{{ $task->id }}">
                                     <i class="fas fa-exclamation-triangle me-1"></i> Report Issue
                                 </button>
+
                                 <!-- Modal for reporting an issue -->
                                 <div class="modal fade" id="reportIssueModal{{ $task->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
@@ -189,7 +190,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td><span class="badge bg-success fs-6">Room No. {{ $task->room->room_number }}</span></td>
-                                <td><strong>{{ $task->room->roomType->type_name ?? 'Room' }}</strong></td>
+                                <td><strong>{{ $task->room->roomType->name ?? 'Room' }}</strong></td>
                                 <td class="font-monospace">{{ \Carbon\Carbon::parse($task->completed_at)->format('d M Y, h:i A') }}</td>
                                 <td>
                                     <span class="badge bg-success">Completed</span>
@@ -229,7 +230,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td><span class="badge bg-danger fs-6">Room No. {{ $room->room_number }}</span></td>
-                                <td><strong>{{ $room->roomType->type_name ?? 'Room' }}</strong></td>
+                                <td><strong>{{ $room->roomType->name ?? 'Room' }}</strong></td>
                                 <td><span class="badge bg-danger text-uppercase">Needs Cleaning</span></td>
                             </tr>
                             @empty
@@ -245,4 +246,86 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+    // Global simple loading 
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('.start-task-form').on('submit', function(e) {
+            e.preventDefault(); 
+            
+            var form = this;
+            var roomNumber = $(this).data('room'); // Capture dynamic room number parameter
+
+            // Confirmation box
+            Swal.fire({
+                title: 'Is the issue resolved?',
+                text: `Confirm that technicians have fixed the issue for Room No. ${roomNumber}!`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754', 
+                cancelButtonColor: '#6c757d',  
+                confirmButtonText: '<i class="fas fa-check"></i> Yes, Issue Fixed!',
+                cancelButtonText: 'Cancel',
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success btn-lg px-4 me-2 fw-bold shadow-sm',
+                    cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+                },
+                buttonsStyling: false 
+            }).then((result) => {
+                // loading function
+                if (result.isConfirmed) {
+                    showPageLoader('Resolving maintenance issue...');
+                    form.submit(); 
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+    $('.finish-task-form').on('submit', function(e) {
+        e.preventDefault(); 
+        
+        var form = this;
+        var roomNumber = $(this).data('room'); // Capture dynamic room number parameter
+
+        // Confirmation box
+        Swal.fire({
+            title: 'Is the issue resolved?',
+            text: `Confirm that you are ready to start cleaning Room No. ${roomNumber}!`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754', 
+            cancelButtonColor: '#6c757d',  
+            confirmButtonText: '<i class="fas fa-check"></i> Yes, Issue Fixed!',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-success btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            // loading function
+            if (result.isConfirmed) {
+                showPageLoader('Resolving maintenance issue...');
+                form.submit(); 
+            }
+        });
+    });
+    });
+</script>
 @endsection

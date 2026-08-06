@@ -46,45 +46,47 @@ class MaintenanceLogController extends Controller
         ]);
 
         // Room to maintenance
-        $task->room->update(['status' => 'maintenance']);
+        $task->room->update([
+            'status' => 'maintenance'
+        ]);
 
-        return redirect()->route('dashboard.housekeeping')
+        return redirect()->route('dashboard.housekeeper')
             ->with('success', 'Issue reported successfully. Room moved to maintenance.');
     }
 
     // Admin only - mark as fixed when maintenance issue is fixed 
     public function markAsFixed(MaintenanceLog $log)
     {
-        $user = Auth::user();
-        /** @var \App\Models\User $user */
-
-        // Checking if role === admin
-        if (!$user->hasRole('admin') && $user->role !== 'admin') {
+        // Security check
+        if (!auth()->user()->hasRole('admin')) {
             abort(403, 'Access denied.');
         }
 
-        // Checking if room exists
+        // Make sure room exists
         if (!$log->room) {
-            return back()->with('error', 'Room not found for this log.');
+            return back()->with('error', 'Room not found for this maintenance log.');
         }
 
         $roomNumber = $log->room->room_number;
 
-        DB::transaction(function () use ($log) {
-            // Update maintenance log
-            $log->update([
-                'status' => 'fixed',
-                'fixed_by' => auth()->id(),
-                'fixed_at' => now()
-            ]);
+        try {
+            DB::transaction(function () use ($log) {
+                // Update the maintenance log
+                $log->update([
+                    'status'   => 'fixed',
+                    'fixed_by' => auth()->id(),
+                    'fixed_at' => now(),
+                ]);
 
-            // Room back to dirty for final cleaning
-            $log->room->update([
-                'status' => 'dirty',
-                'notes' => 'Maintenance issue fixed. Ready for final cleaning.'
-            ]);
-        });
+                // Update the room status
+                $log->room->update([
+                    'status' => 'dirty',   // Ready for final cleaning
+                ]);
+            });
 
-        return back()->with('success', "Maintenance for Room {$roomNumber} has been fixed! Room returned to cleaning queue.");
+            return back()->with('success', "Room {$roomNumber} has been marked as fixed and returned to cleaning queue.");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
     }
 }

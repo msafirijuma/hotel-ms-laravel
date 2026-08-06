@@ -28,7 +28,7 @@
             <div class="card border shadow-none mb-4 bg-light">
                 <div class="card-header bg-secondary text-white fw-bold py-2">Add New Shift</div>
                 <div class="card-body">
-                    <form action="{{ route('shifts.store') }}" method="POST">
+                    <form action="{{ route('shifts.store') }}" method="POST" enctype="multipart/form-data" onsubmit="triggerSaveSettings(event)">
                         @csrf
                         <div class="row g-3 align-items-end">
                             <div class="col-md-4">
@@ -77,19 +77,21 @@
                                     <td class="text-danger font-monospace">{{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }}</td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center align-items-center">
-                                            <!-- Edit shift -->
-                                            <a href="{{ route('shifts.edit', $shift->id) }}" class="btn btn-sm btn-warning text-dark py-1" title="Edit Shift">
+                                        
+                                            <!-- Edit Shift -->
+                                            <button type="button" onclick="triggerEdit('{{ route('shifts.edit', $shift->id) }}')" class="btn btn-sm btn-warning py-1" title="Edit Shift">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
-                                            
+                                            </button>
+
                                             <!-- Delete shift -->
-                                            <form action="{{ route('shifts.destroy', $shift->id) }}" method="POST" class="m-0 border-0 p-0" onsubmit="return confirm('This action can\'t be undone. Are you sure?')">
+                                            <form id="delete-user-form-{{ $shift->id }}" action="{{ route('shifts.destroy', $shift->id) }}" method="POST" class="d-none">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger py-1" title="Delete Shift">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
                                             </form>
+
+                                            <button type="button" onclick="triggerDelete({{ $shift->id }}, '{{ $shift->name }}')" class="btn btn-sm btn-danger py-1" title="Delete Shift">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -107,4 +109,81 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Loader function during page navigation
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // View Action Loading
+    function triggerView(url) {
+        showPageLoader('Opening shift...');
+        window.location.href = url;
+    }
+
+    // Edit Action Loading
+    function triggerEdit(url) {
+        showPageLoader('We are preparing shift update form...');
+        window.location.href = url;
+    }
+
+    // SweetAlert Delete Action
+    function triggerDelete(id, name) {
+        Swal.fire({
+            title: 'Are you sure you want to delete?',
+            text: `You will permanently remove "${name} shift"!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545', 
+            cancelButtonColor: '#6c757d',  
+            confirmButtonText: '<i class="fas fa-trash"></i> Yes, Delete!',
+            cancelButtonText: 'No, Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-danger btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Loader during the deletion process
+                Swal.fire({
+                    title: '<span class="text-danger"><i class="fas fa-trash me-2"></i>Deleting...</span>',
+                    text: 'Please wait while the shift is being deleted from the database.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // submit form of selected room
+                document.getElementById('delete-user-form-' + id).submit();
+            }
+        });
+    }
+
+    // Triggering Save setting form
+    function triggerSaveSettings(event) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Adding shift...',
+                text: 'Please wait while a shift is being saved.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    }
+</script>
 @endsection
