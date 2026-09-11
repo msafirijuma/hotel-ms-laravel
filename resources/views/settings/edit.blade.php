@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-cog me-2"></i>Edit Hotel's Settings</h5>
+            <h5 class="mb-0 fw-bold"><i class="fas fa-cog me-2"></i>Edit Settings</h5>
             <a href="{{ route('settings.show') }}" class="btn btn-light btn-sm text-primary fw-bold shadow-sm">
                 <i class="fas fa-arrow-left me-1"></i> Back to Details
             </a>

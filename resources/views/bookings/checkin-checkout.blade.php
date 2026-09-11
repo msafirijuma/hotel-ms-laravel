@@ -4,7 +4,13 @@
 
 @section('content')
 <div class="container-fluid">
-    <h2 class="mb-4">Check-in / Check-out Management</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm bg-primary mb-3 text-white p-3 d-flex justify-content-center align-items-center">
+                <h4><i class="fas fa-sign-in-alt me-2"></i> <span class="fw-bold">Check-in / Check-out Management</span> </h4>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <!-- Today's Check-ins -->
@@ -46,7 +52,7 @@
         </div>
 
         <!-- Today's Check-outs -->
-        <div class="col-lg-6">
+        <div class="col-lg-6 mt-3 mt-md-0">
             <div class="card shadow-sm">
                 <div class="card-header bg-warning text-dark">
                     <h5>Today's Check-outs ({{ $pendingCheckOuts->count() }})</h5>
@@ -111,7 +117,7 @@
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6 mt-3 mt-md-0">
             <div class="card shadow-sm">
                 <div class="card-header bg-warning text-dark">
                     <h5>Recent Check-outs</h5>

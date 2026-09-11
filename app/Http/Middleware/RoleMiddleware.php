@@ -19,14 +19,14 @@ class RoleMiddleware
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Kama user ana role yoyote kati ya zilizotajwa
+        // Any defined role only
         foreach ($roles as $role) {
             if ($user->hasRole($role)) {
                 return $next($request);
             }
         }
 
-        // Kama hana permission
+        // If no permission
         abort(403, 'Unauthorized. You do not have the required role.');
     }
 }

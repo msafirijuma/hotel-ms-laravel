@@ -36,7 +36,7 @@
                         $remaining = $booking->total_amount - $total_paid;
                     @endphp
                     <tr>
-                        <!-- # Laravel Pagination -->
+                        <!-- Pagination -->
                         <td>{{ $bookings->firstItem() + $loop->index }}</td>
 
                         <!-- Booking Code -->
@@ -56,21 +56,22 @@
 
                         <!-- Booking Status -->
                         <td>
-                            <span class="badge bg-{{ $booking->status == 'confirmed' ? 'success' : ($booking->status == 'pending' ? 'warning' : 'secondary') }}">
+                            <span class="badge 
+                            bg-{{ $booking->status == 'confirmed' ? 'success' : ($booking->status == 'pending' ? 'warning' : (($booking->status == 'checked_in' || $booking->status == 'checked_out') ? 'info' : 'danger')) }}">
                                 {{ ucfirst($booking->status) }}
                             </span>
                         </td>
 
                         <!-- Change Status -->
                         <td>
-                            <form action="{{ route('bookings.update-status', $booking->id) }}" method="POST" enctype="multipart/form-data" class="d-inline">
+                            <form action="{{ route('bookings.update-status', $booking) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('PATCH')
-                                <select name="status" onchange="this.form.submit()" class="form-select form-select-sm" style="min-width: 120px;">
+                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                                     <option value="pending" {{ $booking->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="confirmed" {{ $booking->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                    <option value="confirmed" {{ $booking->status == 'checked_in' ? 'selected' : '' }}>Checked In</option>
-                                    <option value="confirmed" {{ $booking->status == 'checked_out' ? 'selected' : '' }}>Checked Out</option>
+                                    <option value="checked_in" {{ $booking->status == 'checked_in' ? 'selected' : '' }}>Checked In</option>
+                                    <option value="checked_out" {{ $booking->status == 'checked_out' ? 'selected' : '' }}>Checked Out</option>
                                     <option value="cancelled" {{ $booking->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                 </select>
                             </form>
@@ -136,7 +137,7 @@
             </table>
         </div>
 
-        <!-- Laravel Pagination -->
+        <!-- Pagination -->
         <div class="d-flex justify-content-center mt-4">
             {{ $bookings->links() }}
         </div>

@@ -9,8 +9,8 @@
             <i class="fas fa-bed me-2"></i>Rooms Management
         </h5>
         <a href="{{ route('rooms.create') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-                <i class="fas fa-plus"></i> Add New Room
-            </a>
+            <i class="fas fa-plus"></i> Add New Room
+        </a>
     </div>
     
     <div class="card-body">

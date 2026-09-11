@@ -63,7 +63,7 @@
                                         Cleaned at {{ \Carbon\Carbon::parse($task->completed_at)->format('d M, h:i A') }}
                                     </span>
                                 @elseif($task->status === 'in_progress')
-                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                    <span class="badge bg-warning text-dark">IN PROGRESS</span>
                                 @else
                                     <span class="text-muted small">---</span>
                                 @endif

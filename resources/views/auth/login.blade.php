@@ -10,7 +10,7 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-5">
                         <i class="bi bi-building-fill fs-1 text-primary"></i>
-                        <h3 class="mt-3 fw-bold">Hotel Management System</h3>
+                        <h3 class="mt-3 fw-bold">{{ $settings->hotel_name }} Management System</h3>
                         <p class="text-muted">Sign in to your account</p>
                     </div>
 
@@ -51,7 +51,7 @@
             </div>
 
             <div class="text-center mt-4 text-muted small">
-                © {{ date('Y') }} Hotel MS
+                © {{ date('Y') }} {{ $settings->hotel_name }} Management System
             </div>
         </div>
     </div>

@@ -5,21 +5,14 @@
 @section('title', 'Room Maintenance Logs')
 
 @section('content')
-<div class="container-fluid pt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="bi bi-tools"></i> Room Maintenance Logs
-        </h1>
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
+        <h5>
+            <i class="fas fa-tools me-2"></i>Room Maintenance Logs
+        </h5>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <div class="card shadow-sm">
+    <div class="container-fluid mt-3">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-bordered align-middle" id="maintenanceTable">

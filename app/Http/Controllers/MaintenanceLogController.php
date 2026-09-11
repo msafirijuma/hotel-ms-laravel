@@ -50,7 +50,7 @@ class MaintenanceLogController extends Controller
             'status' => 'maintenance'
         ]);
 
-        return redirect()->route('dashboard.housekeeper')
+        return redirect()->route('dashboard')
             ->with('success', 'Issue reported successfully. Room moved to maintenance.');
     }
 

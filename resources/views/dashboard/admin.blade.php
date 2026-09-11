@@ -63,7 +63,7 @@
                             <h6 class="opacity-75">Total Guests</h6>
                             <h2 class="mb-0">{{ $total_guests ?? 0 }}</h2>
                         </div>
-                        <i class="fas fa-user-friends fs-1 opacity-75"></i>
+                        <i class="fas fa-users fs-1 opacity-75"></i>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -83,7 +83,7 @@
                             <h6 class="opacity-75">Revenue Today</h6>
                             <h2 class="mb-0">Tsh {{ number_format($total_revenue_today ?? 0) }}</h2>
                         </div>
-                        <i class="bi bi-currency-exchange fs-1 opacity-75"></i>
+                        <i class="fas fa-chart-line fs-1 opacity-75"></i>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -162,10 +162,10 @@
                         <table class="table table-hover table-striped align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Invoice No.</th>
+                                    <th style="width: 120px; min-width:120px">Invoice No.</th>
                                     <th>Guest</th>
                                     <th>Method</th>
-                                    <th>Amount Paid</th>
+                                    <th style="width: 120px; min-width:120px">Amount Paid</th>
                                     <th>Time</th>
                                     <th>Status</th>
                                 </tr>
@@ -187,7 +187,7 @@
                                         TZS {{ number_format($rp->amount_paid, 0) }}
                                     </td>
                                     <td class="small text-muted font-monospace">
-                                        {{ \Carbon\Carbon::parse($rp->created_at)->diffForHumans() }} {{-- e.g., '5 mins ago' --}}
+                                        {{ \Carbon\Carbon::parse($rp->created_at)->diffForHumans() }}
                                     </td>
                                     <td>
                                         <span class="badge bg-info text-white">{{ $rp->status }}</span>

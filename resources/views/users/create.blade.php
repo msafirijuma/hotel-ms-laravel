@@ -5,9 +5,9 @@
 @section('content')
 <div class="card shadow-sm">
     <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
-        <h5><i class="fas fa-user-plus"></i> Add New User</h5>
+        <h5><i class="fas fa-user-plus"></i> Add User</h5>
         <a href="{{ route('users.index') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-            <i class="fas fa-arrow-left me-1"></i> Back to Users List
+            <i class="fas fa-arrow-left me-1"></i> Back to Users 
         </a>
     </div>
     <div class="card-body">

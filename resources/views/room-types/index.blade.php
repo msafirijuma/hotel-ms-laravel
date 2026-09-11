@@ -11,7 +11,7 @@
                 <i class="fas fa-bed me-2"></i>Room Types Management
             </h5>
             <a href="{{ route('room-types.create') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-                <i class="fas fa-plus"></i> Add New Type
+                <i class="fas fa-plus"></i> Add Type
             </a>
         </div>
 
@@ -51,25 +51,25 @@
                                 <td class="text-muted"><small>{{ Str::limit($type->description, 80) }}</small></td>
                                 <td class="text-center">
                                     <div class="d-flex gap-1 justify-content-center">
-                                        <!-- Gallery Modal Button 100px-->
+                                        <!-- Gallery Modal Button -->
                                         <button type="button" class="btn btn-sm btn-info text-white py-1" 
                                                 data-bs-toggle="modal" data-bs-target="#galleryModal{{ $type->id }}" 
                                                 title="View Gallery">
                                             <i class="fas fa-images"></i>
                                         </button>
         
-                                        <!-- 2. EDIT BUTTON -->
+                                        <!-- EDIT BUTTON -->
                                         <button type="button" onclick="triggerEdit('{{ route('room-types.edit', $type->id) }}')" class="btn btn-sm btn-warning text-dark py-1" title="Edit Room Type">
                                             <i class="fas fa-edit"></i>
                                         </button>
 
-                                        <!-- 3. SECURE DELETE FORM (Hidden) -->
+                                        <!-- SECURE DELETE FORM (Hidden) -->
                                         <form id="delete-type-form-{{ $type->id }}" action="{{ route('room-types.destroy', $type->id) }}" method="POST" class="d-none">
                                             @csrf
                                             @method('DELETE')
                                         </form>
 
-                                        <!-- 4. DELETE BUTTON -->
+                                        <!-- DELETE BUTTON -->
                                         <button type="button" onclick="triggerDelete({{ $type->id }}, '{{ addslashes($type->name) }}')" class="btn btn-sm btn-danger py-1" title="Delete Category">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -110,15 +110,15 @@
                                                                         @method('DELETE')
                                                                         
                                                                         @if($img->is_primary)
-                                                                            <!-- show title for this delete button -->
-                                                                            <div class="d-inline-block" title="Huwezi kufuta picha kuu (Primary Image). Badilisha picha nyingine kuwa Primary kwanza ili uweze kuifuta hii!">
+                                                                            
+                                                                            <div class="d-inline-block" title="You cannot delete this image (Primary Image). Choose another as your primary image so that to delete this image.!">
                                                                                 <button type="button" class="btn btn-secondary btn-sm d-flex align-items-center justify-content-center opacity-50 shadow-none" 
                                                                                         style="width: 34px; height: 34px; border-radius: 6px; pointer-events: none; cursor: not-allowed;">
                                                                                     <i class="fas fa-trash-alt"></i>
                                                                                 </button>
                                                                             </div>
                                                                         @else
-                                                                            <!-- show title for this delete button -->
+                                                                            
                                                                             <button type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center shadow" 
                                                                                     style="width: 34px; height: 34px; border-radius: 6px;" 
                                                                                     onclick="if(confirm('Futa picha hii ya gallery?')) { document.getElementById('delete-gallery-form-{{ $img->id }}').submit(); }"

@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white pt-3 pb-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2"></i>System Audit Logs (Activity History)</h5>
+            <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2"></i>System Audit Logs </h5>
         </div>
         
         <div class="card-body p-4">

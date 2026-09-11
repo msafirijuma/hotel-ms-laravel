@@ -7,7 +7,7 @@
     <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
         <h5><i class="fas fa-users-cog"></i> Staff Management</h5>
         <a href="{{ route('users.create') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-            <i class="fas fa-plus"></i> Add New User
+            <i class="fas fa-plus"></i> Add User
         </a>
     </div>
     <div class="card-body">
@@ -20,7 +20,7 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Last Login</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center" style="width: 120px; min-width:120px">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,7 +117,7 @@
 
     // View Action Loading
     function triggerView(url) {
-        showPageLoader('We are opening the profile and user details...');
+        showPageLoader('We are opening the user profile...');
         window.location.href = url;
     }
 
@@ -128,10 +128,10 @@
     }
 
     // SweetAlert Delete Action
-    function triggerDelete(id, userNumber) {
+    function triggerDelete(id, username) {
         Swal.fire({
             title: 'Are you sure you want to delete?',
-            text: `You will permanently remove "user No. ${userNumber}" from the hotel system!`,
+            text: `You will permanently remove "${username}" from the hotel system!`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545', 

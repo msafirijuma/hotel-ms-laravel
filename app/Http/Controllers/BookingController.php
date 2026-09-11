@@ -10,14 +10,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\Helpers\LogActivity;
 
-
 class BookingController extends Controller
 {
     public function index()
     {
+
         $bookings = Booking::with(['guest', 'room', 'payments'])
             ->latest()
             ->paginate(15);
+
         return view('bookings.index', compact('bookings'));
     }
 
@@ -44,7 +45,7 @@ class BookingController extends Controller
             'children'       => 'nullable|integer|min:0',
             'guest_name'     => 'required|string|max:255',
             'guest_phone'    => 'required|string|max:20',
-            'id_number'      => 'nullable|string|max:30',
+            'id_number'      => 'required|string|max:30',
             'guest_email'    => 'nullable|email|max:255',
             'notes'          => 'nullable|string',
         ]);
@@ -60,7 +61,7 @@ class BookingController extends Controller
                     'full_name' => $request->guest_name,
                     'email'     => $request->guest_email,
                     'id_type'   => null,
-                    'id_number' => '—',
+                    'id_number' => $request->id_number,
                 ]
             );
 
@@ -101,7 +102,9 @@ class BookingController extends Controller
             $room->update(['status' => 'occupied']);
 
             DB::commit(); // Commit all changes on the database
-            LogActivity::log('Booking Management', "Created new booking {$booking->booking_code} for guest {$booking->guest->full_name} in Room {$booking->room->room_number}");
+
+            LogActivity::log('Booking', "Created new booking {$booking->booking_code} for guest {$booking->guest->full_name} in Room {$booking->room->room_number}");
+
             return redirect()->route('bookings.index')
                 ->with('success', 'New booking created successfully! Booking code: ' . $booking_code);
         } catch (\Exception $e) {
@@ -162,7 +165,7 @@ class BookingController extends Controller
     {
         $today = now()->format('Y-m-d');
 
-        // Recent Check-ins (Using advanced parameter grouping bracket bounds)
+        // Recent Check-ins 
         $recentCheckIns = Booking::with(['guest', 'room'])
             ->where(function ($query) {
                 $query->where('status', 'checked_in')
@@ -226,8 +229,13 @@ class BookingController extends Controller
      */
     public function checkout(Booking $booking)
     {
+        $total_amount = $booking->total_amount;
+        $total_paid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
+
         if ($booking->status !== 'checked_in') {
             return redirect()->back()->with('error', 'Only checked-in bookings can be checked out.');
+        } elseif ($total_paid == ! $total_amount) {
+            return redirect()->back()->with('error', 'Only full paid guests are allowed to be checked-out.');
         }
 
         $booking->update([
@@ -246,15 +254,59 @@ class BookingController extends Controller
     public function updateStatus(Request $request, Booking $booking)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,cancelled',
+            'status' => 'required|in:pending,confirmed,checked_in,checked_out,cancelled',
         ]);
 
-        $booking->update(['status' => $request->status]);
-        LogActivity::log('UPDATE BOOKING', "Has changed booking status for code {$booking->booking_code} to " . strtoupper($booking->status));
+        $newStatus = $request->status;
+        $currentStatus = $booking->status;
 
-        return back()->with('success', 'Booking status updated to ' . ucfirst($request->status));
+        // ===== CHECK-IN RULES =====
+        if ($newStatus === 'checked_in') {
+            if ($currentStatus !== 'confirmed') {
+                return back()->with('error', 'Only confirmed bookings can be checked in.')->withInput();
+            }
+        }
+
+        // ===== CHECK-OUT RULES =====
+        if ($newStatus === 'checked_out') {
+            // Lazima iwe checked_in kwanza
+            if ($currentStatus !== 'checked_in') {
+                return back()->with('error', 'Only checked-in bookings can be checked out.')->withInput();
+            }
+
+            // Check kama kuna deni (outstanding balance)
+            $totalPaid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
+            $balance = $booking->total_amount - $totalPaid;
+
+            if ($balance > 0) {
+                return back()->with('error', 'Cannot check out. Guest still has outstanding balance of TZS ' . number_format($balance))->withInput();
+            }
+        }
+
+        // ===== CANCEL RULES (optional) =====
+        if ($newStatus === 'cancelled' && in_array($currentStatus, ['checked_in', 'checked_out'])) {
+            return back()->with('error', 'Cannot cancel a booking that is already checked in or checked out.')->withInput();
+        }
+
+        // Update status
+        $booking->update(['status' => $newStatus]);
+
+        // Optional: Update room status when checking in/out
+        if ($newStatus === 'checked_in' && $booking->room) {
+            $booking->room->update(['status' => 'occupied']);
+        }
+
+        if ($newStatus === 'checked_out' && $booking->room) {
+            $booking->room->update(['status' => 'dirty']);
+        }
+
+        LogActivity::log(
+            'UPDATE BOOKING',
+            "Changed booking status for code {$booking->booking_code} from {$currentStatus} to {$newStatus}"
+        );
+
+        return back()->with('success', 'Booking status updated to ' . ucfirst(str_replace('_', ' ', $newStatus)));
     }
-
 
     public function destroy(Booking $booking)
     {

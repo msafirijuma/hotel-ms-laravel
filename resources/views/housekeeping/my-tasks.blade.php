@@ -92,8 +92,90 @@
                 @endforeach
             </div>
          @else
-            <p class="text-muted text-center py-4">No recent bookings yet.</p>
+            <p class="text-muted text-center py-4">You do not have any tasks assigned at the moment.</p>
         @endif
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Global simple loading 
+    function showPageLoader(message) {
+        Swal.fire({
+            title: 'Please wait...',
+            text: message,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('.start-task-form').on('submit', function(e) {
+            e.preventDefault(); 
+            
+            var form = this;
+            var roomNumber = $(this).data('room'); // Capture dynamic room number parameter
+
+            // Confirmation box
+            Swal.fire({
+                title: 'You are about to task this task?',
+                text: `Confirm that you are ready to start cleaning Room No. ${roomNumber}!`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754', 
+                cancelButtonColor: '#6c757d',  
+                confirmButtonText: '<i class="fas fa-check"></i> Yes, Start!',
+                cancelButtonText: 'Cancel',
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success btn-lg px-4 me-2 fw-bold shadow-sm',
+                    cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+                },
+                buttonsStyling: false 
+            }).then((result) => {
+                // loading function
+                if (result.isConfirmed) {
+                    showPageLoader('Cleaning room...');
+                    form.submit(); 
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+    $('.finish-task-form').on('submit', function(e) {
+        e.preventDefault(); 
+        
+        var form = this;
+        var roomNumber = $(this).data('room'); // Capture dynamic room number parameter
+
+        // Confirmation box
+        Swal.fire({
+            title: 'You are about to finish this task?',
+            text: `Confirm that you have completed cleaning Room No. ${roomNumber}!`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754', 
+            cancelButtonColor: '#6c757d',  
+            confirmButtonText: '<i class="fas fa-check"></i> Yes, Finish!',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                confirmButton: 'btn btn-success btn-lg px-4 me-2 fw-bold shadow-sm',
+                cancelButton: 'btn btn-secondary btn-lg px-4 fw-bold shadow-sm'
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            // loading function
+            if (result.isConfirmed) {
+                showPageLoader('Finishing cleaning task...');
+                form.submit(); 
+            }
+        });
+    });
+    });
+</script>
 @endsection

@@ -51,7 +51,7 @@ class PaymentController extends Controller
         ]);
 
         // Invoice number (randomly generated)
-        $invoice_number = 'INV-' . date('Y') . '-' . strtoupper(Str::random(5));
+        $invoice_number = 'INV-' . date('Y') . '-' . strtoupper(Str::random(6));
 
         $payment = Payment::create([
             'booking_id' => $request->booking_id,

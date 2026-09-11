@@ -26,10 +26,10 @@
         <div class="row mb-4">
             <div class="col-6">
                 <!-- Hotel Name -->
-                <h3 class="text-primary font-weight-bold mb-0">{{ $settings->hotel_name ?? 'Hotel' }}</h3>
+                <h3 class="text-primary font-weight-bold mb-0">{{ $settings->hotel_name ?? 'Hotel MS' }}</h3>
                 
                 <!-- Address -->
-                <small class="text-muted d-block">{{ $settings->address ?? 'Dar es Salaam, Tanzania' }}</small>
+                <small class="text-muted d-block fw-bold">{{ $settings->address ?? 'Dar es Salaam, Tanzania' }}</small>
             </div>
             <div class="col-6 text-end">
                 <!-- Receipt / Invoice -->
@@ -46,8 +46,9 @@
         <div class="row mb-4">
             <div class="col-6">
                 <h6 class="text-muted mb-1" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Customer Information:</h6>
-                <strong>Name:</strong> {{ $payment->booking->guest->full_name ?? 'Mgeni' }}<br>
-                <strong>Email:</strong> {{ $payment->booking->guest->email ?? '—' }}
+                <strong>Name:</strong> {{ $payment->booking->guest->full_name ?? 'Guest' }}<br>
+                <strong>Email:</strong> {{ $payment->booking->guest->email ?? '—' }}<br>
+                <strong>Phone:</strong> {{ $payment->booking->guest->phone ?? '—' }}
             </div>
             <div class="col-6 text-end">
                 <h6 class="text-muted mb-1" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Payment Details:</h6>
@@ -78,7 +79,7 @@
                 <tbody>
                     <tr>
                         <td>
-                            Hotel Rooms of Type <strong>{{ $payment->booking->room->roomType->type_name ?? 'Room' }}</strong><br>
+                            Hotel Rooms of Type: <strong>{{ $payment->booking->room->roomType->name ?? 'Room' }}</strong><br>
                             <small class="text-muted">From: {{ \Carbon\Carbon::parse($payment->booking->check_in_date)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($payment->booking->check_out_date)->format('d/m/Y') }}</small>
                         </td>
                         <td class="text-center">No. {{ $payment->booking->room->room_number }}</td>
@@ -106,7 +107,7 @@
         </div>
 
         <!-- Footer custom message -->
-        <div class="text-center mt-5">
+        <div class="text-center mt-3">
             <p class="mb-0 text-muted italic">
                 "{{ $settings->footer_message ?? 'Thanks for choosing our hotel, Welcome again!' }}"
             </p>
@@ -117,7 +118,7 @@
 <style>
     /* CSS print */
     @media print {
-        .no-print, .app-sidebar-container, .layouts-partials-header, .navbar, head {
+        .no-print, .app-sidebar-container, .layouts-partials-header, .navbar, head, footer, .mobile-topbar {
             display: none !important;
         }
         .app-content-container, .main-content {

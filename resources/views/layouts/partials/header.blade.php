@@ -88,6 +88,58 @@
             color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
+
+        /* ========== DATATABLES MOBILE SCROLL ========== */    
+
+        /* Prevent horizontal scrolling */
+        .app-content-container {
+            overflow-x: hidden;
+        }
+
+        /* Table wrapper - scroll horizontal only */
+        .table-responsive,
+        .dataTables_wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* DataTables generated scroll container */
+        .dataTables_wrapper .dataTables_scroll,
+        .dataTables_wrapper .row {
+            margin: 0;
+        }
+
+        .dataTables_wrapper table {
+            width: 100% !important;
+            min-width: 600px; /* force horizontal scroll on small screens */
+        }
+
+        /* Controls (Show entries / Search) */
+        @media (max-width: 767.98px) {
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                text-align: left !important;
+                margin-bottom: 10px;
+            }
+
+            .dataTables_wrapper .dataTables_length select,
+            .dataTables_wrapper .dataTables_filter input {
+                width: auto;
+                display: inline-block;
+            }
+
+            .dataTables_wrapper .dataTables_info,
+            .dataTables_wrapper .dataTables_paginate {
+                text-align: center !important;
+                margin-top: 18px;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
     </style>
 
     <!-- Local CSS -->

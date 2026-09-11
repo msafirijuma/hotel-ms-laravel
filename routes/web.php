@@ -118,6 +118,8 @@ Route::middleware('auth')->group(function () {
     // My Work Schedule
     Route::get('/housekeeping/my-schedule', [HousekeepingController::class, 'mySchedule'])->name('housekeeping.my-schedule');
 
+    // Housekeeper dashboard
+    Route::get('housekeeper', [MaintenanceLogController::class, 'reportIssue'])->name('housekeeper.dashboard');
 
     // Role Protected Routes
     Route::middleware('role:admin,manager')->prefix('admin')->name('admin.')->group(function () {

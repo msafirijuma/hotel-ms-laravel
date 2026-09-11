@@ -65,7 +65,7 @@
                                     <h6 class="opacity-75">Occupied Rooms</h6>
                                     <h2 class="mb-0">{{ $occupied_rooms ?? 0 }}</h2>
                                 </div>
-                                <i class="bi bi-door-closed fs-1 opacity-75"></i>
+                                <i class="fas fa-door-closed fs-1 opacity-75"></i>
                             </div>
                         </div>
                         <div class="card-footer">
@@ -85,7 +85,7 @@
                                     <h6 class="opacity-75">Dirty Rooms</h6>
                                     <h2 class="mb-0">{{ $dirty_rooms ?? 0 }}</h2>
                                 </div>
-                                <i class="bi bi-broom fs-1 opacity-75"></i>
+                                <i class="fas fa-broom fs-1 opacity-75"></i>
                             </div>
                         </div>
                         <div class="card-footer">
@@ -105,7 +105,7 @@
         <div class="card-body">
             <div class="row g-4 mb-2">
                 <!-- Today's Check-ins -->
-                <div class="col-xl-3 col-md-6 col-sm-12">
+                <div class="col-md-6 col-sm-12">
                     <div class="card border-0 shadow-sm h-100 bg-success text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
@@ -125,7 +125,7 @@
                 </div>
 
                 <!-- Today's Check-outs -->
-                <div class="col-xl-3 col-md-6 col-sm-12">
+                <div class="col-md-6 col-sm-12">
                     <div class="card border-0 shadow-sm h-100 bg-warning text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
@@ -165,8 +165,8 @@
                                     <tr>
                                         <th>Guest</th>
                                         <th>Room</th>
-                                        <th>Check-in</th>
-                                        <th>Check-out</th>
+                                        <th style="width: 120px; min-width:120px">Check-in</th>
+                                        <th style="width: 120px; min-width:120px">Check-out</th>
                                         <th>Amount</th>
                                         <th>Status</th>
                                     </tr>
@@ -212,11 +212,11 @@
                         <table class="table table-hover table-striped align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Invoice No.</th>
+                                    <th style="width: 120px; min-width:120px">Invoice No.</th>
                                     <th>Guest</th>
                                     <th>Method</th>
-                                    <th>Amount Paid</th>
-                                    <th>Time</th>
+                                    <th style="width: 120px; min-width:120px">Amount Paid</th>
+                                    <th style="width: 120px; min-width:120px">Time</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>

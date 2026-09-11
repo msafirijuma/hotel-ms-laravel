@@ -13,18 +13,7 @@
         </div>
         
         <div class="card-body">
-            <!-- Error validation -->
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
+            
             <form action="{{ route('bookings.store') }}" method="POST" class="booking-form" onsubmit="triggerSaveSettings(event)">
                 @csrf
 
@@ -94,7 +83,7 @@
 
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">ID Number <span class="text-danger">*</span></label>
-                            <input type="text" name="guest_phone" class="form-control" value="{{ old('id_number') }}" required>
+                            <input type="text" name="id_number" class="form-control" value="{{ old('id_number') }}" required>
                         </div>
 
                         <div class="mb-3">

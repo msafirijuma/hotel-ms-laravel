@@ -15,9 +15,9 @@
             width: 100%;
         }
 
-        /* Fixed sidebar on the screen */
+        /* Sidebar on the large screen */
         .app-sidebar-container {
-            width: 260px; /* sidebar width */
+            width: 280px; /* sidebar width */
             position: fixed;
             top: 0;
             bottom: 0;
@@ -30,7 +30,7 @@
         /* Content container */
         .app-content-container {
             flex: 1;
-            margin-left: 260px; /* equal to sidebar px */
+            margin-left: 280px; /* same as sidebar width */
             padding: 1.5rem;
             min-height: 100vh;
             display: flex;
@@ -38,7 +38,62 @@
             justify-content: space-between;
         }
 
-        /* UDropdown Menu (Admin Tools) */
+        /* ========== MOBILE TOP BAR ========== */
+        .mobile-topbar {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            background: #1a233a;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .mobile-topbar .btn-toggle {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #f59e0b;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        /* ========== OVERLAY ========== */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 1045;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* ========== MOBILE RESPONSIVE ========== */
+        @media (max-width: 767.98px) {
+            .app-sidebar-container {
+                transform: translateX(-100%);
+                z-index: 1050;
+            }
+
+            .app-sidebar-container.show {
+                transform: translateX(0);
+            }
+
+            .app-content-container {
+                margin-left: 0;
+                padding: 0 !important;
+            }
+
+            .mobile-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        /* Dropdown Menu */
         .app-sidebar-container .dropdown-menu {
             background-color: #ffffff !important; 
             border: none !important;
@@ -48,7 +103,7 @@
             margin-top: 5px !important;
         }
 
-        /* Items in the Dropdwon */
+        /* Items in the Dropdown */
         .app-sidebar-container .dropdown-item {
             color: #4a5568 !important; 
             font-weight: 500 !important;
@@ -93,16 +148,32 @@
     </div>
 
 @else
+    <!-- Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Show sidebar & content-container -->
     <div class="app-wrapper">
+
         <!-- Right side: Sidebar -->
-        <div class="app-sidebar-container">
+        <div class="app-sidebar-container" id="sidebar">
             @include('layouts.partials.sidebar')
         </div>
 
         <!-- Left side: Main Content & Footer -->
-        <div class="app-content-container">
-            <div class="main-content-body w-100">
+        <div class="app-content-container d-flex flex-column justify-content-start flex-grow-1">
+            
+            <!-- Mobile Topbar -->
+            <div class="mobile-topbar">
+                <button class="btn-toggle" id="sidebarToggle" type="button">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="fw-bold text-white">
+                    <span class="text-white me-2">{{ $settings->hotel_name }}</span>
+                </span>
+                <div style="width: 40px;"></div> {{-- spacer --}}
+            </div>
+
+            <div class="main-content-body px-1 w-100 mt-3 mt-md-0">
                 @yield('content')
             </div>
             
@@ -142,8 +213,44 @@
                     "last": "Last",
                     "next": "Next",
                     "previous": "Prev"
-                }
+                },
+                responsive: true,
+                scrollX: true,        // horizontal scroll
+                autoWidth: false,
             }
+        });
+    });
+</script>
+
+<!-- Overlays & Offset-->
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const closeBtn = document.getElementById('sidebarClose');
+
+    function openSidebar() {
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    toggleBtn?.addEventListener('click', () => {
+        sidebar.classList.contains('show') ? closeSidebar() : openSidebar();
+    });
+
+    closeBtn?.addEventListener('click', closeSidebar);
+    overlay?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.app-sidebar-container a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 768) closeSidebar();
         });
     });
 </script>
@@ -155,7 +262,7 @@
         position: 'top-end',
         showConfirmButton: false,
         timer: 4000,
-        timerProgressBar: true,
+        timerProgressBar: false,
         didOpen: (toast) => {
                 toast.onmouseenter = Swal.stopTimer;
                 toast.onmouseleave = Swal.resumeTimer;
@@ -166,15 +273,25 @@
     @if(session('success'))
         Toast.fire({
             icon: 'success',
-            title: "{{ session('success') }}"
+            title: 'Success!',
+            text: "{{ session('success') }}",
         });
     @endif
 
     // error message
-    @if($errors->any())
+    // @if($errors->any())
+    //     Toast.fire({
+    //         icon: 'error',
+    //         title: "{{ $errors->first() }}" 
+    //     });
+    // @endif
+
+    @if(session('error'))
         Toast.fire({
             icon: 'error',
-            title: "{{ $errors->first() }}" 
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            confirmButtonText: 'OK'
         });
     @endif
         

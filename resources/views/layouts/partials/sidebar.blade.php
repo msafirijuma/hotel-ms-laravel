@@ -1,9 +1,27 @@
 @auth
 <div class="sidebar p-3 text-white d-flex flex-column h-100">
+    <!-- close button -->
+    <div class="d-flex d-md-none justify-content-end px-3 pe-0 pt-0">
+        <button type="button" id="sidebarClose" 
+                class="btn btn-sm"
+                style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; width: 36px; height: 36px;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
     <!-- Brand Title -->
-    <h4 class="mb-4 text-center fw-bold py-2 border-bottom border-secondary">
-        <i class="fas fa-building me-2 text-info"></i> Hotel MS
-    </h4>
+    <div class="p-3 d-flex justify-content-center align-baseline text-center border-bottom border-secondary">
+        @if($settings->logo_path)
+            <img src="{{ asset('storage/' . $settings->logo_path) }}" 
+            class="img-fluid rounded-3 me-1" 
+            style="max-height: 30px; object-fit: contain;">
+            <span class="h4">{{ $settings->hotel_name }}</span>
+        @else
+            <h4 class="mb-4 text-center fw-bold py-2">
+                <i class="fas fa-building me-2 text-info"></i> {{ $settings->hotel_name }}
+            </h4>
+        @endif
+    </div>
     
     <ul class="nav flex-column mb-4 flex-grow-1">
         
@@ -48,6 +66,11 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
+                <a href="{{ route('guests.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'guests.index') active @endif">
+                    <i class="fas fa-users me-3"></i> Guests
+                </a>
+            </li>
+            <li class="nav-item mb-1">
                 <a href="{{ route('bookings.checkin-checkout') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'bookings.checkin-checkout') active @endif">
                     <i class="fas fa-sign-in-alt me-3"></i> Check-in / Check-out
                 </a>
@@ -55,11 +78,6 @@
             <li class="nav-item mb-1">
                 <a href="{{ route('payments.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'payments.index') active @endif">
                     <i class="fas fa-money-bill-wave me-3"></i> Payments
-                </a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="{{ route('maintenance-logs.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'maintenance-logs.index') active @endif">
-                    <i class="fas fa-tools me-3"></i> Maintenance Logs
                 </a>
             </li>
         @endif
@@ -77,6 +95,11 @@
             <li class="nav-item mb-1">
                 <a href="{{ route('staff-schedules.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'staff-schedules.index') active @endif">
                     <i class="fas fa-calendar-alt me-3"></i> Staff Scheduling
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ route('maintenance-logs.index') }}" class="nav-link d-flex align-items-center @if (Route::currentRouteName() == 'maintenance-logs.index') active @endif">
+                    <i class="fas fa-tools me-3"></i> Maintenance Logs
                 </a>
             </li>
             <!-- Admin Tools -->

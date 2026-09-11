@@ -72,7 +72,7 @@
                         </div>
                     </div>
 
-                    <!-- Right Side: Guest Info (Readonly for consistency) -->
+                    <!-- Right Side: Guest Info (Readonly) -->
                     <div class="col-lg-6">
                         <h5 class="mb-3 text-secondary border-bottom pb-2">Guest Profile (View Only)</h5>
                         
@@ -84,6 +84,11 @@
                         <div class="mb-3">
                             <label class="form-label text-muted font-weight-bold">Phone Number</label>
                             <input type="text" class="form-control bg-light" value="{{ $booking->guest->phone ?? 'N/A' }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted font-weight-bold">ID Number</label>
+                            <input type="text" class="form-control bg-light" value="{{ $booking->guest->id_number ?? 'N/A' }}" readonly>
                         </div>
 
                         <div class="mb-3">

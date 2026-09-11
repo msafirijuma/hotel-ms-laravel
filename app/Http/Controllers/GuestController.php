@@ -31,7 +31,7 @@ class GuestController extends Controller
 
         Guest::create($validated);
         return redirect()->route('guests.index')
-                         ->with('success', 'Guest added successfully!');
+            ->with('success', 'Guest added successfully!');
     }
 
     public function edit(Guest $guest)
@@ -53,7 +53,13 @@ class GuestController extends Controller
         $guest->update($validated);
 
         return redirect()->route('guests.index')
-                         ->with('success', 'Guest updated successfully!');
+            ->with('success', 'Guest updated successfully!');
+    }
+
+    public function show(Guest $guest)
+    {
+        $guest->load(['bookings.room']);
+        return view('guests.show', compact('guest'));
     }
 
     public function destroy(Guest $guest)
@@ -61,12 +67,12 @@ class GuestController extends Controller
         // If guest has booking, do not delete
         if ($guest->bookings()->count() > 0) {
             return redirect()->route('guests.index')
-                             ->with('error', 'Cannot delete guest with active bookings.');
+                ->with('error', 'Cannot delete guest with active bookings.');
         }
 
         $guest->delete();
 
         return redirect()->route('guests.index')
-                         ->with('success', 'Guest deleted successfully!');
+            ->with('success', 'Guest deleted successfully!');
     }
 }

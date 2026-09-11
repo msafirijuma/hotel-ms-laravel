@@ -215,37 +215,38 @@
                 <div class="card-header bg-danger text-white py-3">
                     <h5 class="mb-0 fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Dirty Rooms Alert</h5>
                 </div>
-                <div class="card-body">
-                    <table class="table table-striped table-bordered align-middle" id="employeeTable">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>Room Number</th>
-                                <th>Room Type</th>
-                                <th>Current Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($rooms as $room)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><span class="badge bg-danger fs-6">Room No. {{ $room->room_number }}</span></td>
-                                <td><strong>{{ $room->roomType->name ?? 'Room' }}</strong></td>
-                                <td><span class="badge bg-danger text-uppercase">Needs Cleaning</span></td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">Congratulation. No dirty room at the moment.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="table-responsive">
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered align-middle" id="employeeTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Room Number</th>
+                                    <th>Room Type</th>
+                                    <th>Current Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($rooms as $room)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td><span class="badge bg-danger fs-6">Room No. {{ $room->room_number }}</span></td>
+                                    <td><strong>{{ $room->roomType->name ?? 'Room' }}</strong></td>
+                                    <td><span class="badge bg-danger text-uppercase">Needs Cleaning</span></td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">Congratulation. No dirty room at the moment.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-        </div>
+            </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
@@ -271,13 +272,13 @@
 
             // Confirmation box
             Swal.fire({
-                title: 'Is the issue resolved?',
-                text: `Confirm that technicians have fixed the issue for Room No. ${roomNumber}!`,
+                title: 'You are about to task this task?',
+                text: `Confirm that you are ready to start cleaning Room No. ${roomNumber}!`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#198754', 
                 cancelButtonColor: '#6c757d',  
-                confirmButtonText: '<i class="fas fa-check"></i> Yes, Issue Fixed!',
+                confirmButtonText: '<i class="fas fa-check"></i> Yes, Start!',
                 cancelButtonText: 'Cancel',
                 allowOutsideClick: false,
                 customClass: {
@@ -288,7 +289,7 @@
             }).then((result) => {
                 // loading function
                 if (result.isConfirmed) {
-                    showPageLoader('Resolving maintenance issue...');
+                    showPageLoader('Cleaning room...');
                     form.submit(); 
                 }
             });
@@ -304,13 +305,13 @@
 
         // Confirmation box
         Swal.fire({
-            title: 'Is the issue resolved?',
-            text: `Confirm that you are ready to start cleaning Room No. ${roomNumber}!`,
+            title: 'You are about to finish this task?',
+            text: `Confirm that you have completed cleaning Room No. ${roomNumber}!`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#198754', 
             cancelButtonColor: '#6c757d',  
-            confirmButtonText: '<i class="fas fa-check"></i> Yes, Issue Fixed!',
+            confirmButtonText: '<i class="fas fa-check"></i> Yes, Finish!',
             cancelButtonText: 'Cancel',
             allowOutsideClick: false,
             customClass: {
@@ -321,7 +322,7 @@
         }).then((result) => {
             // loading function
             if (result.isConfirmed) {
-                showPageLoader('Resolving maintenance issue...');
+                showPageLoader('Finishing cleaning task...');
                 form.submit(); 
             }
         });

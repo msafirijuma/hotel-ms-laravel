@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-money-check-alt me-2"></i>Hotel Payments & Transactions Log</h5>
+            <h5 class="mb-0 fw-bold"><i class="fas fa-money-check-alt me-2"></i>Hotel Payments & Transactions</h5>
         </div>
         
         <div class="card-body p-4">
@@ -14,7 +14,7 @@
                 <table class="table table-striped table-hover table-bordered align-middle mb-0" id="paymentsTable" style="width:100%">
                     <thead class="table-dark">
                         <tr>
-                            <th>Invoice No.</th>
+                            <th style="width: 130px; min-width: 110px">Invoice No.</th>
                             <th>Guest Name</th>
                             <th>Room</th>
                             <th>Method</th>

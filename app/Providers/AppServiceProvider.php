@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\HotelSetting;
+
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +23,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         require_once app_path('Helpers/LogActivity.php');
+
+        View::composer('*', function ($view) {
+            $settings = HotelSetting::first(); // au HotelSetting::find(1);
+            $view->with('settings', $settings);
+        });
     }
 }

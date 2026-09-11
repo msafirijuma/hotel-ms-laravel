@@ -3,11 +3,11 @@
 @section('title', 'Edit User')
 
 @section('content')
-<div class="card shadow-sm w-75 mt-4">
+<div class="card shadow-sm w-100 mt-3">
     <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
         <h5><i class="fas fa-user-edit"></i> Edit User: {{ $user->name }}</h5>
         <a href="{{ route('users.index') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
-            <i class="fas fa-arrow-left"></i> Back to Users List
+            <i class="fas fa-arrow-left"></i> Back to Users
         </a>
     </div>
     <div class="card-body">
