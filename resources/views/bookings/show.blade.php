@@ -43,8 +43,9 @@
                         <tr>
                             <td class="text-muted fw-bold">Status:</td>
                             <td>
-                                <span class="badge text-uppercase bg-{{ $booking->status == 'confirmed' ? 'success' : ($booking->status == 'pending' ? 'warning' : 'secondary') }}">
-                                    {{ $booking->status }}
+                                <span class="badge 
+                                bg-{{ $booking->status == 'confirmed' ? 'success' : ($booking->status == 'pending' ? 'warning' : (($booking->status == 'checked_in' || $booking->status == 'checked_out') ? 'info' : 'danger')) }}">
+                                    {{ ucfirst($booking->status) }}
                                 </span>
                             </td>
                         </tr>

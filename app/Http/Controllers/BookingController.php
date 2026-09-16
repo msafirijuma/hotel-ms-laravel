@@ -5,16 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Guest;
 use App\Models\Room;
-use \Carbon\Carbon;
+use App\Models\User;
+
+use App\Notifications\BookingCreated;
+use App\Notifications\BookingStatusChanged;
+use App\Notifications\GuestBookingCancelled;
+use App\Notifications\GuestBookingConfirmation;
+use App\Notifications\GuestCheckIn;
+use App\Notifications\GuestCheckInConfirmation;
+use App\Notifications\GuestCheckOut;
+use App\Notifications\GuestCheckOutThankYou;
+use App\Notifications\GuestHasOutstandingBalance;
+use App\Notifications\GuestOutstandingBalance;
+use App\Notifications\RoomStatusChanged;
+
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use \App\Helpers\LogActivity;
+use App\Helpers\LogActivity;
 
 class BookingController extends Controller
 {
     public function index()
     {
-
         $bookings = Booking::with(['guest', 'room', 'payments'])
             ->latest()
             ->paginate(15);
@@ -103,10 +116,22 @@ class BookingController extends Controller
 
             DB::commit(); // Commit all changes on the database
 
+            // Triggering notification to staff
+            $admins = User::role(['admin', 'manager', 'receptionist'])->get();
+            foreach ($admins as $user) {
+                $user->notify(new BookingCreated($booking));
+            }
+
+            // Trigger notification to guest
+            if ($booking->guest && $booking->guest->email) {
+                $booking->guest->notify(new ($booking));
+            }
+
             LogActivity::log('Booking', "Created new booking {$booking->booking_code} for guest {$booking->guest->full_name} in Room {$booking->room->room_number}");
 
             return redirect()->route('bookings.index')
                 ->with('success', 'New booking created successfully! Booking code: ' . $booking_code);
+
         } catch (\Exception $e) {
             DB::rollBack(); // Error occurred, rollback the transaction
             return back()->withInput()->withErrors(['error' => 'An error occured: ' . $e->getMessage()]);
@@ -207,6 +232,11 @@ class BookingController extends Controller
      */
     public function checkin(Booking $booking)
     {
+        $total_amount = $booking->total_amount;
+        $total_paid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
+
+        $balance = $total_amount - $total_paid;
+
         if ($booking->status !== 'confirmed') {
             return redirect()->back()->with('error', 'Only confirmed bookings can be checked in.');
         }
@@ -218,6 +248,17 @@ class BookingController extends Controller
 
         // Update room status
         $booking->room->update(['status' => 'occupied']);
+
+        // Triggering notification to guest after check-in
+        if ($booking->guest && $booking->guest->email) {
+            $booking->guest->notify(new GuestCheckInConfirmation($booking));
+        }
+
+        // Triggering notification to guest 
+        if ($booking->guest && $booking->guest->email && $balance > 0) {
+            $booking->guest->notify(new GuestOutstandingBalance($booking, $balance));
+        }
+
         LogActivity::log('Front Desk', "Has checked in guest {$booking->guest->full_name} into Room {$booking->room->room_number} (Code: {$booking->booking_code})");
 
         return redirect()->route('bookings.checkin-checkout')
@@ -231,11 +272,20 @@ class BookingController extends Controller
     {
         $total_amount = $booking->total_amount;
         $total_paid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
+        $balance = $total_amount - $total_paid;
 
         if ($booking->status !== 'checked_in') {
             return redirect()->back()->with('error', 'Only checked-in bookings can be checked out.');
         } elseif ($total_paid == ! $total_amount) {
             return redirect()->back()->with('error', 'Only full paid guests are allowed to be checked-out.');
+        }
+
+        // Trigger notification
+        if ($balance > 0) {
+            $users = User::role(['admin', 'receptionist'])->get();
+            foreach ($users as $user) {
+                $user->notify(new GuestHasOutstandingBalance($booking, $balance));
+            }
         }
 
         $booking->update([
@@ -245,6 +295,13 @@ class BookingController extends Controller
 
         // Update room status to dirty for cleaning
         $booking->room->update(['status' => 'dirty']);
+
+        // Trigger notifcation to guest after check-out
+        if ($booking->guest && $booking->guest->email) {
+            $booking->guest->notify(new GuestCheckOutThankYou($booking));
+        }
+
+        // LogActivity
         LogActivity::log('Front Desk', "Checked out guest {$booking->guest->full_name} from Room {$booking->room->room_number}. Room set to DIRTY.");
 
         return redirect()->route('bookings.checkin-checkout')
@@ -257,49 +314,102 @@ class BookingController extends Controller
             'status' => 'required|in:pending,confirmed,checked_in,checked_out,cancelled',
         ]);
 
-        $newStatus = $request->status;
+        $newStatus = $request->status;;
         $currentStatus = $booking->status;
 
-        // ===== CHECK-IN RULES =====
+        // ===== Check-in Rules =====
         if ($newStatus === 'checked_in') {
             if ($currentStatus !== 'confirmed') {
                 return back()->with('error', 'Only confirmed bookings can be checked in.')->withInput();
             }
+
+            $users = User::role(['admin', 'receptionist', 'housekeeper'])->get();
+            foreach ($users as $user) {
+                $user->notify(new GuestCheckIn($booking));
+            }
+            if ($booking->guest?->email) {
+                $booking->guest->notify(new GuestCheckInConfirmation($booking));
+            }
         }
 
-        // ===== CHECK-OUT RULES =====
+        // ===== Check-out Rules =====
         if ($newStatus === 'checked_out') {
-            // Lazima iwe checked_in kwanza
+            $total_amount = $booking->total_amount;
+            $total_paid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
+
+            $balance = $total_amount - $total_paid;
+
+            // Must be checked_in
             if ($currentStatus !== 'checked_in') {
                 return back()->with('error', 'Only checked-in bookings can be checked out.')->withInput();
             }
 
-            // Check kama kuna deni (outstanding balance)
-            $totalPaid = $booking->payments ? $booking->payments->sum('amount_paid') : 0;
-            $balance = $booking->total_amount - $totalPaid;
-
             if ($balance > 0) {
-                return back()->with('error', 'Cannot check out. Guest still has outstanding balance of TZS ' . number_format($balance))->withInput();
+                // Staff notification
+                $staff = User::role(['admin', 'receptionist'])->get();
+                foreach ($staff as $user) {
+                    $user->notify(new GuestHasOutstandingBalance($booking, $balance));
+                }
+        
+                // Guest notification (optional)
+                if ($booking->guest?->email) {
+                    $booking->guest->notify(new GuestOutstandingBalance($booking, $balance));
+                }
+        
+                return back()->with('error', 'Cannot check out. Outstanding balance: TZS ' . number_format($balance));
             }
         }
 
-        // ===== CANCEL RULES (optional) =====
+        // ===== Checking cancellation rules =====
         if ($newStatus === 'cancelled' && in_array($currentStatus, ['checked_in', 'checked_out'])) {
             return back()->with('error', 'Cannot cancel a booking that is already checked in or checked out.')->withInput();
+        }
+
+        // Cancelled
+        if ($newStatus === 'cancelled' && $booking->guest?->email) {
+            $booking->guest->notify(new GuestBookingCancelled($booking));
+        }
+
+        // Cancelled
+        if ($newStatus === 'confirmed' && $booking->guest?->email) {
+            $booking->guest->notify(new GuestBookingConfirmation($booking));
         }
 
         // Update status
         $booking->update(['status' => $newStatus]);
 
-        // Optional: Update room status when checking in/out
+        // Staff
+        $staff = User::role(['admin', 'manager', 'receptionist'])->get();
+        foreach ($staff as $user) {
+            $user->notify(new BookingStatusChanged($booking, $currentStatus, $newStatus));
+        }
+
+        // Update room status when checking in/out
         if ($newStatus === 'checked_in' && $booking->room) {
             $booking->room->update(['status' => 'occupied']);
+
+            // Staff
+            $staff = User::role(['admin', 'receptionist', 'housekeeper'])->get();
+            foreach ($staff as $user) {
+                $user->notify(new RoomStatusChanged($room, $currentStatus, $newStatus));
+            }
         }
 
         if ($newStatus === 'checked_out' && $booking->room) {
             $booking->room->update(['status' => 'dirty']);
+
+            // Notification
+            $users = User::role(['admin', 'receptionist', 'housekeeper'])->get();
+            foreach ($users as $user) {
+                $user->notify(new GuestCheckOut($booking));
+            }
+            
+            if ($booking->guest?->email) {
+                $booking->guest->notify(new GuestCheckOutThankYou($booking));
+            }
         }
 
+        // Log activity
         LogActivity::log(
             'UPDATE BOOKING',
             "Changed booking status for code {$booking->booking_code} from {$currentStatus} to {$newStatus}"

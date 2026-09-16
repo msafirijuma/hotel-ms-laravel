@@ -11,14 +11,14 @@
 
     <!-- Brand Title -->
     <div class="p-3 d-flex justify-content-center align-baseline text-center border-bottom border-secondary">
-        @if($settings->logo_path)
+        @if($settings->logo_path ?? '')
             <img src="{{ asset('storage/' . $settings->logo_path) }}" 
             class="img-fluid rounded-3 me-1" 
             style="max-height: 30px; object-fit: contain;">
-            <span class="h4">{{ $settings->hotel_name }}</span>
+            <span class="h4">{{ $settings->hotel_name ?? 'Hotel' }}</span>
         @else
             <h4 class="mb-4 text-center fw-bold py-2">
-                <i class="fas fa-building me-2 text-info"></i> {{ $settings->hotel_name }}
+                <i class="fas fa-building me-2 text-info"></i> {{ $settings->hotel_name ?? 'Hotel' }}
             </h4>
         @endif
     </div>

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Guest;
+use App\Notifications\GuestCreated;
+use App\Notifications\GuestUpdated;
 use Illuminate\Http\Request;
 
 class GuestController extends Controller
@@ -29,7 +32,13 @@ class GuestController extends Controller
             'country'   => 'nullable|string|max:100',
         ]);
 
-        Guest::create($validated);
+        $guest = Guest::create($validated);
+
+        $staff = User::role(['admin', 'receptionist'])->get();
+        foreach ($staff as $user) {
+            $user->notify(new GuestCreated($guest));
+        }
+
         return redirect()->route('guests.index')
             ->with('success', 'Guest added successfully!');
     }
@@ -51,6 +60,12 @@ class GuestController extends Controller
         ]);
 
         $guest->update($validated);
+
+        // Staff
+        $staff = User::role(['admin', 'receptionist'])->get();
+        foreach ($staff as $user) {
+            $user->notify(new GuestUpdated($guest));
+        }
 
         return redirect()->route('guests.index')
             ->with('success', 'Guest updated successfully!');

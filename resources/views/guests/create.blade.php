@@ -46,7 +46,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Country</label>
-                <input type="text" name="country" class="form-control" value="Kenya">
+                <input type="text" name="country" class="form-control" value="Tanzania">
             </div>
 
             <button type="submit" class="btn btn-primary">Save Guest</button>

@@ -15,6 +15,15 @@
             width: 100%;
         }
 
+        .navbar-nav {
+            display: flex;
+            justify-content: end;
+            flex-direction: row;
+            padding-left: 0;
+            margin-bottom: 10px;
+            list-style: none;
+        }
+
         /* Sidebar on the large screen */
         .app-sidebar-container {
             width: 280px; /* sidebar width */
@@ -168,12 +177,13 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <span class="fw-bold text-white">
-                    <span class="text-white me-2">{{ $settings->hotel_name }}</span>
+                    <span class="text-white me-2">{{ $settings->hotel_name ?? 'Hotel' }}</span>
                 </span>
                 <div style="width: 40px;"></div> {{-- spacer --}}
             </div>
 
-            <div class="main-content-body px-1 w-100 mt-3 mt-md-0">
+            <div class="main-content-body p-2 w-100 mt-3 mt-md-1">
+                @include('layouts.partials.navbar')
                 @yield('content')
             </div>
             
@@ -278,14 +288,6 @@
         });
     @endif
 
-    // error message
-    // @if($errors->any())
-    //     Toast.fire({
-    //         icon: 'error',
-    //         title: "{{ $errors->first() }}" 
-    //     });
-    // @endif
-
     @if(session('error'))
         Toast.fire({
             icon: 'error',
@@ -305,10 +307,19 @@
                                 window.performance.navigation.type === 2);
                                 
         if (historyTraversal) {
+
             // Close any frozen SweetAlert spinner immediately
             if (typeof Swal !== 'undefined') {
                 Swal.close();
             }
+
+            var badge = document.querySelector('.notification-badge'); 
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            window.location.reload();
+
         }
     });
 </script>

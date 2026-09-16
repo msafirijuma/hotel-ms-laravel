@@ -6,7 +6,11 @@ use Illuminate\Contracts\Broadcasting\HasBroadcastChannel;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\User;
 use App\Models\HotelSetting;
+
+use App\Notifications\PaymentReceived;
+use App\Notifications\GuestPaymentReceipt;
 use App\Helpers\LogActivity;
 use Illuminate\Support\Str;
 
@@ -17,7 +21,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        // Pakia malipo yote kuanzia mapya zaidi
+        // Latest payent
         $payments = Payment::with(['booking.guest', 'booking.room.roomType'])
             ->latest()
             ->get();
@@ -61,6 +65,17 @@ class PaymentController extends Controller
             'status' => 'paid',
             'payment_date' => now(),
         ]);
+
+        // Staff
+        $staff = User::role(['admin', 'manager', 'receptionist'])->get();
+        foreach ($staff as $user) {
+            $user->notify(new PaymentReceived($payment));
+        }
+
+        // Guest Receipt
+        if ($payment->booking->guest?->email) {
+            $payment->booking->guest->notify(new GuestPaymentReceipt($payment));
+        }
 
         LogActivity::log('Payment', 'Payment has been done for booking' . $request->booking_id);
 

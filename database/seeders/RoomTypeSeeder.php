@@ -12,7 +12,7 @@ class RoomTypeSeeder extends Seeder
         $roomTypes = [
             [
                 'name' => 'Standard Room',
-                'description' => 'Standar room with 1 or 2 beds, Tv, WiFi and Bath.',
+                'description' => 'Standard room with 1 or 2 beds, Tv, WiFi and Bath.',
                 'price_per_night' => 240000,
                 'max_occupancy' => 2,
                 'image' => null,

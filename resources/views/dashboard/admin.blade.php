@@ -3,7 +3,7 @@
 @section('title', 'Dashboard - Hotel MS')
 
 @section('content')
-@extends('layouts.partials.navbar')
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Dashboard</h2>
@@ -151,7 +151,7 @@
     <div class="row mt-4 pb-5">
         <div class="col-12">
             <div class="card shadow-sm rounded-3 mt-4">
-                <div class="card-header py-3 bg-dark text-white d-flex justify-content-between align-items-center">
+                <div class="card-header py-3 text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <h6 class="mb-0"><i class="fas fa-cash-register me-2"></i>Recent Payments</h6>
                     <a href="{{ route('payments.index') }}" class="btn btn-light btn-sm text-primary font-weight-bold">
                     <i class="fas fa-eye"></i> View All Payments
@@ -167,7 +167,7 @@
                                     <th>Method</th>
                                     <th style="width: 120px; min-width:120px">Amount Paid</th>
                                     <th>Time</th>
-                                    <th>Status</th>
+                                    <th>Booking Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -210,7 +210,7 @@
         <div class="row mt-2 pb-2">
             <div class="col-12">
                 <div class="card shadow">
-                    <div class="card-header py-3 bg-gradient-dark text-dark">
+                    <div class="card-header py-3 bg-info-subtle text-dark">
                         <h6 class="m-0 font-weight-bold">Today's Booking & Guests</h6>
                     </div>
                     <div class="card-body">
@@ -256,7 +256,7 @@
         <div class="row g-4 mt-4">
             <div class="col-lg-6 mb-4">
                 <div class="card shadow h-100">
-                    <div class="card-header py-3 bg-gradient-primary text-dark">
+                    <div class="card-header py-3 bg-primary-subtle text-dark">
                         <h6 class="m-0 font-weight-bold">Revenue By Month (This Year)</h6>
                     </div>
                     <div class="card-body">
@@ -266,7 +266,7 @@
             </div>
             <div class="col-lg-6 mb-4">
                 <div class="card shadow h-100">
-                    <div class="card-header py-3 bg-gradient-warning text-dark">
+                    <div class="card-header py-3 bg-primary-subtle text-dark">
                         <h6 class="m-0 font-weight-bold">Room Status Overview</h6>
                         <small>Total rooms: {{ $total_rooms }}</small>
                     </div>
@@ -281,7 +281,7 @@
         <div class="row mt-4">
             <div class="col-lg-8 mb-4">
                 <div class="card shadow h-100">
-                    <div class="card-header py-3 bg-gradient-info text-dark">
+                    <div class="card-header py-3 bg-dark-subtle text-dark">
                         <h6 class="m-0 font-weight-bold">Daily Revenue (Last 30 Days)</h6>
                     </div>
                     <div class="card-body">
@@ -295,7 +295,7 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow">
-                <div class="card-header py-3 bg-gradient-dark text-dark">
+                <div class="card-header py-3 text-light" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <h6 class="m-0 font-weight-bold">Quick Actions</h6>
                 </div>
                 <div class="card-body">

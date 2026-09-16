@@ -32,7 +32,7 @@
                         <td>{{ $guest->full_name }}</td>
                         <td>{{ $guest->phone }}</td>
                         <td>{{ $guest->id_number }}</td>
-                        <td>{{ $guest->country }}</td>
+                        <td>{{ $guest->country ?? '—' }}</td>
                         <td>
                             <!-- VIEW BUTTON-->
                             <button type="button" onclick="triggerView('{{ route('guests.show', $guest) }}')" class="btn btn-sm btn-info text-white py-1" title="View guest Details">
@@ -54,7 +54,6 @@
                             <button type="button" onclick="triggerDelete({{ $guest->id }}, '{{ $guest->full_name }}')" class="btn btn-sm btn-danger py-1" title="Delete Guest">
                                 <i class="fas fa-trash"></i>
                             </button>
-
                         </td>
                     </tr>
                     @endforeach

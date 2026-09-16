@@ -16,6 +16,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\StaffScheduleController;
 use App\Http\Controllers\HousekeepingController;
 use App\Http\Controllers\MaintenanceLogController;
+use App\Http\Controllers\NotificationController;
 
 
 // ====================== PUBLIC ROUTES (Anyone) ======================
@@ -144,6 +145,11 @@ Route::middleware('auth')->group(function () {
         // Change Password
         Route::get('/change-password', [DashboardController::class, 'changePassword'])->name('password.change');
         Route::put('/change-password', [DashboardController::class, 'updatePassword'])->name('password.update');
+
+        // Notifications
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

@@ -7,6 +7,8 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\HousekeepingTask;
 use App\Models\StaffSchedule;
+
+use App\Notifications\TaskAssigned;
 use App\Helpers\LogActivity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -125,6 +127,11 @@ class HousekeepingController extends Controller
 
             Room::where('id', $request->room_id)->update(['status' => 'cleaning']);
 
+            // Triggering notification
+            $housekeeper = User::find($assigned_to);
+            $housekeeper->notify(new TaskAssigned($task));
+
+            // Log Activity
             LogActivity::log('Housekeeping', 'Has manually assign room no. ' . $request->room_id .  ' to housekeeper.');
         });
 
@@ -164,7 +171,7 @@ class HousekeepingController extends Controller
 
         if ($least_loaded) {
             DB::transaction(function () use ($request, $least_loaded) {
-                HousekeepingTask::create([
+                $task = HousekeepingTask::create([
                     'room_id'     => $request->room_id,
                     'assigned_to' => $least_loaded->id,
                     'assigned_by' => Auth::id(),
@@ -173,6 +180,10 @@ class HousekeepingController extends Controller
                 ]);
 
                 Room::where('id', $request->room_id)->update(['status' => 'cleaning']);
+
+                // Triggering notification
+                $housekeeper = User::find($assigned_to);
+                $housekeeper->notify(new TaskAssigned($task));
 
                 LogActivity::log('Housekeeping', 'System has auto assigned this room to ' . $least_loaded->name);
             });
