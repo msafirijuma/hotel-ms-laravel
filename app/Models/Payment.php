@@ -15,19 +15,31 @@ class Payment extends Model
         'amount_paid',
         'payment_method',
         'status',
-        'payment_date'
+        'payment_date',
     ];
 
-    // Uhusiano: Malipo haya ni ya Booking gani
+    protected $casts = [
+        'amount_paid'  => 'decimal:2',
+        'payment_date' => 'datetime',
+    ];
+
     public function booking()
     {
         return $this->belongsTo(Booking::class);
     }
 
-    // Uhusiano: Malipo haya yanaweza kuwa na malipo mengi
-    public function payments()
+    public function payment()
     {
         return $this->hasMany(Payment::class);
     }
 
+    // Generate unique invoice number
+    public static function generateInvoiceNumber()
+    {
+        do {
+            $number = 'INV-' . strtoupper(uniqid());
+        } while (self::where('invoice_number', $number)->exists());
+
+        return $number;
+    }
 }

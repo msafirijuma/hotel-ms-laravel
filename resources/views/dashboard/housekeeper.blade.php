@@ -179,8 +179,8 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Room Number</th>
-                                <th>Room Type</th>
+                                <th style="width: 120px; min-width: 120px">Room Number</th>
+                                <th style="width: 120px; min-width: 120px">Room Type</th>
                                 <th>Cleaned At</th>
                                 <th>Status</th>
                             </tr>
@@ -222,7 +222,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Room Number</th>
-                                    <th>Room Type</th>
+                                    <th style="width: 120px; min-width: 120px">Room Type</th>
                                     <th>Current Status</th>
                                 </tr>
                             </thead>

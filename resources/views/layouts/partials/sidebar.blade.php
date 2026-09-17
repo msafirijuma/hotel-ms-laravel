@@ -142,7 +142,7 @@
         @endif
 
         <!-- Housekeeping and reception staff only -->
-        @if(auth()->user()->hasRole('receptionist'))
+        @if(auth()->user()->hasRole(['housekeeper']))
             <li class="nav-item mt-3 mb-2">
                 <span class="text-uppercase text-muted fw-bold small tracking-wider px-3">Staff Shift</span>
             </li>
@@ -161,7 +161,7 @@
             <!-- Assigned tasks for housekeeping staff -->
             <li class="nav-item mb-1">
                 <a href="{{ route('housekeeping.my-tasks') }}" class="nav-link position-relative @if (Route::currentRouteName() == 'housekeeping.my-tasks') active @endif" >
-                    <i class="bi bi-bell"></i>
+                    <i class="fas fa-broom me-3"></i>
                     <span>My Tasks</span>
                     @php
                         $pendingCount = \App\Models\HousekeepingTask::where('assigned_to', auth()->id())

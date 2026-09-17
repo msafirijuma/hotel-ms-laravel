@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
 @php
-    // Total payment in this booking
-    $total_paid = $payment->booking->payments ? $payment->booking->payments->sum('amount_paid') : 0;
+    $total_paid = $payment->booking->payments
+        ? $payment->booking->payments->where('status', 'paid')->sum('amount_paid')
+        : 0;
     $total_amount = $payment->booking->total_amount;
     $remaining_balance = $total_amount - $total_paid;
 @endphp
@@ -11,33 +12,27 @@
 
 @section('content')
 <div class="container max-w-3xl">
-    <!-- Print & Back Actions Menu -->
     <div class="d-flex justify-content-end mb-3 no-print">
         <button onclick="window.print();" class="btn btn-outline-dark me-2">
             <i class="fas fa-print"></i> Print
         </button>
         <a href="{{ route('payments.index') }}" class="btn btn-primary">
-        <i class="fas fa-arrow-left me-2 "></i>Back to Payments
+            <i class="fas fa-arrow-left me-2"></i> Back to Payments
         </a>
     </div>
 
-    <!-- Receipt / Invoice Card Canvas -->
     <div class="card shadow-sm p-4 bg-white border">
         <div class="row mb-4">
             <div class="col-6">
-                <!-- Hotel Name -->
-                <h3 class="text-primary font-weight-bold mb-0">{{ $settings->hotel_name ?? 'Hotel MS' }}</h3>
-                
-                <!-- Address -->
+                <h3 class="text-primary fw-bold mb-0">{{ $settings->hotel_name ?? 'Hotel MS' }}</h3>
                 <small class="text-muted d-block fw-bold">{{ $settings->address ?? 'Dar es Salaam, Tanzania' }}</small>
             </div>
             <div class="col-6 text-end">
-                <!-- Receipt / Invoice -->
-                <h4 class="text-uppercase text-primary font-weight-bold mb-1">
+                <h4 class="text-uppercase text-primary fw-bold mb-1">
                     {{ $total_paid >= $total_amount ? 'RECEIPT' : 'INVOICE' }}
                 </h4>
                 <strong>Number:</strong> {{ $payment->invoice_number }}<br>
-                <strong>Date:</strong> {{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y H:i') }}
+                <strong>Date:</strong> {{ $payment->payment_date?->format('d/m/Y H:i') ?? $payment->created_at->format('d/m/Y H:i') }}
             </div>
         </div>
 
@@ -45,45 +40,44 @@
 
         <div class="row mb-4">
             <div class="col-6">
-                <h6 class="text-muted mb-1" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Customer Information:</h6>
+                <h6 class="text-muted mb-1 text-uppercase small fw-bold">Customer Information</h6>
                 <strong>Name:</strong> {{ $payment->booking->guest->full_name ?? 'Guest' }}<br>
                 <strong>Email:</strong> {{ $payment->booking->guest->email ?? '—' }}<br>
                 <strong>Phone:</strong> {{ $payment->booking->guest->phone ?? '—' }}
             </div>
             <div class="col-6 text-end">
-                <h6 class="text-muted mb-1" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Payment Details:</h6>
-                <strong>Method Used:</strong> <span class="text-uppercase">{{ str_replace('_', ' ', $payment->payment_method) }}</span><br>
-                
-                <!-- Payment Status Badge -->
-                <strong>Payment Status:</strong> 
+                <h6 class="text-muted mb-1 text-uppercase small fw-bold">Payment Details</h6>
+                <strong>Method:</strong> <span class="text-uppercase">{{ str_replace('_', ' ', $payment->payment_method) }}</span><br>
+                <strong>Status:</strong>
                 @if($total_paid >= $total_amount)
-                    <span class="badge bg-success px-2 py-1.5"><i class="fas fa-check-circle"></i> Fully Paid</span>
-                @elseif($total_paid > 0 && $total_paid < $total_amount)
-                    <span class="badge bg-warning text-dark px-2 py-1.5"><i class="fas fa-clock"></i> Partially Paid</span>
+                    <span class="badge bg-success">Fully Paid</span>
+                @elseif($total_paid > 0)
+                    <span class="badge bg-warning text-dark">Partially Paid</span>
                 @else
-                    <span class="badge bg-danger px-2 py-1.5"><i class="fas fa-exclamation-triangle"></i> Unpaid</span>
+                    <span class="badge bg-danger">Unpaid</span>
                 @endif
             </div>
         </div>
 
-        <!-- Payment Table (Services offered) -->
         <div class="table-responsive">
             <table class="table table-bordered mb-4">
                 <thead class="table-light">
                     <tr>
                         <th>Service Information</th>
                         <th class="text-center">Room</th>
-                        <th class="text-end">Amount Paid - This Transaction (TZS)</th>
+                        <th class="text-end">This Transaction (TZS)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            Hotel Rooms of Type: <strong>{{ $payment->booking->room->roomType->name ?? 'Room' }}</strong><br>
-                            <small class="text-muted">From: {{ \Carbon\Carbon::parse($payment->booking->check_in_date)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($payment->booking->check_out_date)->format('d/m/Y') }}</small>
+                            Room Type: <strong>{{ $payment->booking->room->roomType->name ?? 'Room' }}</strong><br>
+                            <small class="text-muted">
+                                From: {{ \Carbon\Carbon::parse($payment->booking->check_in_date)->format('d/m/Y') }}
+                                to {{ \Carbon\Carbon::parse($payment->booking->check_out_date)->format('d/m/Y') }}
+                            </small>
                         </td>
-                        <td class="text-center">No. {{ $payment->booking->room->room_number }}</td>
-                        <!-- Amount paid in this transaction -->
+                        <td class="text-center">No. {{ $payment->booking->room->room_number ?? '—' }}</td>
                         <td class="text-end font-monospace">{{ number_format($payment->amount_paid, 2) }}</td>
                     </tr>
                 </tbody>
@@ -106,9 +100,8 @@
             </table>
         </div>
 
-        <!-- Footer custom message -->
         <div class="text-center mt-3">
-            <p class="mb-0 text-muted italic">
+            <p class="mb-0 text-muted">
                 "{{ $settings->footer_message ?? 'Thanks for choosing our hotel, Welcome again!' }}"
             </p>
         </div>
@@ -116,9 +109,8 @@
 </div>
 
 <style>
-    /* CSS print */
     @media print {
-        .no-print, .app-sidebar-container, .layouts-partials-header, .navbar, head, footer, .mobile-topbar {
+        .no-print, .app-sidebar-container, .navbar, footer, .mobile-topbar {
             display: none !important;
         }
         .app-content-container, .main-content {

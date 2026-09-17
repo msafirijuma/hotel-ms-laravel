@@ -57,10 +57,11 @@ Route::middleware('auth')->group(function () {
 
     // Payments Module
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
-    Route::get('/bookings/{booking}/pay', [PaymentController::class, 'create'])->name('payments.create');
-    Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
-    Route::get('/payments/invoice/{id}', [PaymentController::class, 'showInvoice'])->name('payments.invoice');
-
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
+    
     // Reports Module
     Route::middleware(['auth'])->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

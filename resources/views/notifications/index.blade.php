@@ -86,7 +86,7 @@
                             @endif
 
                             @if(!$notification->read_at)
-                                <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                                <form action="{{ route('notifications.read', $notification->id) }}" method="get">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success">
                                         Mark Read

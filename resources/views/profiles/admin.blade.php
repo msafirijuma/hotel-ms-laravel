@@ -71,6 +71,10 @@
                                 <span class="text-muted d-block small">Hired Since</span>
                                 <strong>{{ $user->created_at ? $user->created_at->format('d M Y') : '—' }}</strong>
                             </div>
+                            <div class="col-md-6">
+                                <span class="text-muted d-block small">Date of Birth</span>
+                                <strong>{{ $user->birth_date ? $user->birth_date->format('d M Y') : '—' }}</strong>
+                            </div>
                         </div>
                     </div>
                 </div>

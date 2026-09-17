@@ -386,6 +386,7 @@ class BookingController extends Controller
 
         // Update room status when checking in/out
         if ($newStatus === 'checked_in' && $booking->room) {
+            $room = $booking->room;
             $booking->room->update(['status' => 'occupied']);
 
             // Staff

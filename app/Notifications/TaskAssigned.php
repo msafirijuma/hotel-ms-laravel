@@ -30,7 +30,7 @@ class TaskAssigned extends Notification
             'message' => "You have been assigned Room {$this->task->room->room_number}",
             'type' => 'task',
             'task_id' => $this->task->id,
-            'url' => route('housekeeping.dashboard'),
+            'url' => route('housekeeping.my-tasks'),
         ];
     }
 
@@ -42,7 +42,7 @@ class TaskAssigned extends Notification
             ->line('You have been assigned a new cleaning task.')
             ->line('Room: ' . ($this->task->room->room_number ?? 'N/A'))
             ->line('Notes: ' . ($this->task->notes ?? 'None'))
-            ->action('View Tasks', route('housekeeping.dashboard'))
+            ->action('View Tasks', route('housekeeping.my-tasks'))
             ->line('Please complete the task on time.');
     }
 }

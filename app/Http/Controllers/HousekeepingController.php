@@ -113,30 +113,36 @@ class HousekeepingController extends Controller
         $request->validate([
             'room_id'     => 'required|exists:rooms,id',
             'assigned_to' => 'required|exists:users,id',
-            'description'       => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($request) {
-            HousekeepingTask::create([
+            $task = HousekeepingTask::create([
                 'room_id'     => $request->room_id,
                 'assigned_to' => $request->assigned_to,
                 'assigned_by' => Auth::id(),
-                'description'       => trim($request->description),
-                'status'      => 'pending'
+                'description' => trim($request->description ?? ''),
+                'status'      => 'pending',
             ]);
 
             Room::where('id', $request->room_id)->update(['status' => 'cleaning']);
 
-            // Triggering notification
-            $housekeeper = User::find($assigned_to);
-            $housekeeper->notify(new TaskAssigned($task));
+            // Trigger notification
+            $housekeeper = User::find($request->assigned_to);
+            if ($housekeeper) {
+                $housekeeper->notify(new TaskAssigned($task));
+            }
 
             // Log Activity
-            LogActivity::log('Housekeeping', 'Has manually assign room no. ' . $request->room_id .  ' to housekeeper.');
+            LogActivity::log(
+                'Housekeeping',
+                'Has manually assigned room no. ' . $request->room_id . ' to housekeeper ID: ' . $request->assigned_to
+            );
         });
 
-        // Back to root view (housekeeping)
-        return redirect()->route('housekeeping.index')->with('success', 'Task assigned successfully!');
+        return redirect()
+            ->route('housekeeping.index')
+            ->with('success', 'Task assigned successfully!');
     }
 
     /**
@@ -175,17 +181,22 @@ class HousekeepingController extends Controller
                     'room_id'     => $request->room_id,
                     'assigned_to' => $least_loaded->id,
                     'assigned_by' => Auth::id(),
-                    'description'       => "Auto-assigned (least loaded staff)",
+                    'description' => "Auto-assigned (least loaded staff)",
                     'status'      => 'pending'
                 ]);
-
+            
                 Room::where('id', $request->room_id)->update(['status' => 'cleaning']);
-
-                // Triggering notification
-                $housekeeper = User::find($assigned_to);
-                $housekeeper->notify(new TaskAssigned($task));
-
-                LogActivity::log('Housekeeping', 'System has auto assigned this room to ' . $least_loaded->name);
+            
+                // Trigger notification
+                $housekeeper = User::find($least_loaded->id);
+                if ($housekeeper) {
+                    $housekeeper->notify(new TaskAssigned($task));
+                }
+            
+                LogActivity::log(
+                    'Housekeeping',
+                    'System has auto assigned room no. ' . $request->room_id . ' to ' . $least_loaded->name
+                );
             });
 
             // Back to root view (housekeeping)

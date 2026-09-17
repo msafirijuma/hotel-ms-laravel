@@ -217,7 +217,7 @@ class DashboardController extends Controller
             $data['photo'] = $request->file('photo')->store('users', 'public');
         }
 
-        // 4. Update the user record
+        // Update the user record
         $user->update($data);
 
         // Audit Logs

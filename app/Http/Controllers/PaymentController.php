@@ -2,94 +2,92 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Contracts\Broadcasting\HasBroadcastChannel;
-use Illuminate\Http\Request;
-use App\Models\Booking;
 use App\Models\Payment;
-use App\Models\User;
-use App\Models\HotelSetting;
-
-use App\Notifications\PaymentReceived;
-use App\Notifications\GuestPaymentReceipt;
-use App\Helpers\LogActivity;
-use Illuminate\Support\Str;
+use App\Models\Booking;
+use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    /**
-     * paymentts index view
-     */
     public function index()
     {
-        // Latest payent
-        $payments = Payment::with(['booking.guest', 'booking.room.roomType'])
+        $payments = Payment::with(['booking.guest', 'booking.room'])
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view('payments.index', compact('payments'));
     }
 
-    /**
-     * Show create payment form for a specific booking
-     */
-    public function create($booking_id)
+    public function create(Request $request)
     {
-        $booking = Booking::with(['room', 'guest'])->findOrFail($booking_id);
+        $booking = null;
 
-        // Remainign amount
-        $total_paid = $booking->payments()->sum('amount_paid');
-        $remaining_amount = $booking->total_amount - $total_paid;
+        if ($request->filled('booking_id')) {
+            $booking = Booking::with(['guest', 'room', 'payments'])
+                ->findOrFail($request->booking_id);
+        }
 
-        return view('payments.create', compact('booking', 'remaining_amount'));
+        $bookings = Booking::with('guest')
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
+            ->latest()
+            ->get();
+
+        return view('payments.create', compact('booking', 'bookings'));
     }
 
-    /**
-     * store payment to database
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-            'amount_paid' => 'required|numeric|min:1',
+        $validated = $request->validate([
+            'booking_id'     => 'required|exists:bookings,id',
+            'amount_paid'    => 'required|numeric|min:1',
             'payment_method' => 'required|in:cash,mpesa,tigo_pesa,airtel_money,bank_transfer,card',
+            'status'         => 'required|in:pending,paid,refunded',
+            'payment_date'   => 'nullable|date',
         ]);
 
-        // Invoice number (randomly generated)
-        $invoice_number = 'INV-' . date('Y') . '-' . strtoupper(Str::random(6));
+        $booking = Booking::with('payments')->findOrFail($validated['booking_id']);
+
+        $totalPaid = $booking->payments->where('status', 'paid')->sum('amount_paid');
+        $balance   = $booking->total_amount - $totalPaid;
+
+        if ($validated['status'] === 'paid' && $validated['amount_paid'] > $balance) {
+            return back()
+                ->withInput()
+                ->with('error', 'Amount exceeds remaining balance of TZS ' . number_format($balance, 2));
+        }
 
         $payment = Payment::create([
-            'booking_id' => $request->booking_id,
-            'invoice_number' => $invoice_number,
-            'amount_paid' => $request->amount_paid,
-            'payment_method' => $request->payment_method,
-            'status' => 'paid',
-            'payment_date' => now(),
+            'booking_id'     => $validated['booking_id'],
+            'invoice_number' => Payment::generateInvoiceNumber(),
+            'amount_paid'    => $validated['amount_paid'],
+            'payment_method' => $validated['payment_method'],
+            'status'         => $validated['status'],
+            'payment_date'   => $validated['payment_date'] ?? now(),
         ]);
 
-        // Staff
-        $staff = User::role(['admin', 'manager', 'receptionist'])->get();
-        foreach ($staff as $user) {
-            $user->notify(new PaymentReceived($payment));
-        }
+        return redirect()
+            ->route('payments.index')
+            ->with('success', 'Payment recorded successfully. Invoice: ' . $payment->invoice_number);
+    }
 
-        // Guest Receipt
-        if ($payment->booking->guest?->email) {
-            $payment->booking->guest->notify(new GuestPaymentReceipt($payment));
-        }
-
-        LogActivity::log('Payment', 'Payment has been done for booking' . $request->booking_id);
-
-        return redirect()->route('payments.invoice', $payment->id)
-            ->with('success', 'Payment received successfully!');
+    public function show(Payment $payment)
+    {
+        $payment->load(['booking.guest', 'booking.room']);
+        return view('payments.show', compact('payment'));
     }
 
     /**
      * show invoice for a specific payment
      */
-    public function showInvoice($id)
+    // public function showInvoice($id)
+    // {
+    //     $payment = Payment::with(['booking.room.roomType', 'booking.guest'])->findOrFail($id);
+    //     $settings = HotelSetting::first();
+    //     return view('payments.invoice', compact('payment', 'settings'));
+    // }
+
+    public function invoice(Payment $payment)
     {
-        $payment = Payment::with(['booking.room.roomType', 'booking.guest'])->findOrFail($id);
-        $settings = HotelSetting::first();
-        return view('payments.invoice', compact('payment', 'settings'));
+        $payment->load(['booking.guest', 'booking.room.roomType', 'booking.payments']);
+        return view('payments.invoice', compact('payment'));
     }
 }

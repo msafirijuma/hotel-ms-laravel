@@ -121,7 +121,7 @@
                                                                             
                                                                             <button type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center shadow" 
                                                                                     style="width: 34px; height: 34px; border-radius: 6px;" 
-                                                                                    onclick="if(confirm('Futa picha hii ya gallery?')) { document.getElementById('delete-gallery-form-{{ $img->id }}').submit(); }"
+                                                                                    onclick="if(confirm('Delete this image from the gallery?')) { document.getElementById('delete-gallery-form-{{ $img->id }}').submit(); }"
                                                                                     title="Delete this image">
                                                                                 <i class="fas fa-trash-alt"></i>
                                                                             </button>

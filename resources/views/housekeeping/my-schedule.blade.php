@@ -6,7 +6,7 @@
         <div class="card-header bg-primary text-white py-3">
             <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-alt me-2"></i>My Shift Schedule</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered align-middle" id="housekeepingTable">
                     <thead class="table-dark">

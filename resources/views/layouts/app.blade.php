@@ -269,9 +269,9 @@
 <script>
     const Toast = Swal.mixin({
         toast: true,
-        position: 'top-end',
+        position: 'bottom-end',
         showConfirmButton: false,
-        timer: 4000,
+        timer: 3000,
         timerProgressBar: false,
         didOpen: (toast) => {
                 toast.onmouseenter = Swal.stopTimer;
@@ -293,7 +293,6 @@
             icon: 'error',
             title: 'Error!',
             text: "{{ session('error') }}",
-            confirmButtonText: 'OK'
         });
     @endif
         
