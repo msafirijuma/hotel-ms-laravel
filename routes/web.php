@@ -18,127 +18,114 @@ use App\Http\Controllers\HousekeepingController;
 use App\Http\Controllers\MaintenanceLogController;
 use App\Http\Controllers\NotificationController;
 
-
-// ====================== PUBLIC ROUTES (Anyone) ======================
+// ====================== PUBLIC ROUTES ======================
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-// ====================== PROTECTED ROUTES (Authenticated users only) =====================
+// ====================== PROTECTED ROUTES ======================
 Route::middleware('auth')->group(function () {
 
-    // Dashboard Module
+    // Dashboard (all authenticated users)
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Rooms Module
-    Route::resource('room-types', RoomTypeController::class)->middleware('role:admin');
-    Route::resource('rooms', RoomController::class);
-    Route::patch('/rooms/{room}/update-status', [RoomController::class, 'updateStatus'])->name('rooms.update-status');
+    // ====================== ADMIN ONLY ======================
+    Route::middleware('role:admin')->group(function () {
+        // Room Types
+        Route::resource('room-types', RoomTypeController::class);
+        Route::delete('/room-types/gallery/{id}', [RoomTypeController::class, 'destroyGalleryImage'])->name('room-types.gallery.destroy');
+        Route::get('/room-types/gallery/{id}/set-primary', [RoomTypeController::class, 'setPrimaryImage'])->name('room-types.gallery.primary');
 
-    // Room Types Gallery Module
-    Route::delete('/room-types/gallery/{id}', [RoomTypeController::class, 'destroyGalleryImage'])->name('room-types.gallery.destroy');
-    Route::get('/room-types/gallery/{id}/set-primary', [RoomTypeController::class, 'setPrimaryImage'])->name('room-types.gallery.primary');
+        // Users
+        Route::resource('users', UserController::class);
 
-    // Guest Module
-    Route::resource('guests', GuestController::class);
+        // Settings
+        Route::get('/settings', [HotelSettingController::class, 'show'])->name('settings.show');
+        Route::get('/settings/edit', [HotelSettingController::class, 'edit'])->name('settings.edit');
+        Route::post('/settings/update', [HotelSettingController::class, 'update'])->name('settings.update');
 
-    // User Module
-    Route::resource('users', UserController::class);
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users/show', [UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        // Shifts
+        Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
+        Route::post('/shifts', [ShiftController::class, 'store'])->name('shifts.store');
+        Route::get('/manage-shifts/{shift}/edit', [ShiftController::class, 'edit'])->name('shifts.edit');
+        Route::put('/manage-shifts/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
+        Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->name('shifts.destroy');
 
-    // Bookings Module
-    Route::resource('bookings', BookingController::class);
-    Route::get('/checkin-checkout', [BookingController::class, 'checkInOut'])->name('bookings.checkin-checkout');
-    Route::post('/bookings/{booking}/checkin', [BookingController::class, 'checkin'])->name('bookings.checkin');
-    Route::post('/bookings/{booking}/checkout', [BookingController::class, 'checkout'])->name('bookings.checkout');
-    Route::patch('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
+        // Audit Logs
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    });
 
-    // Payments Module
-    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
-    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
-    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
-    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
-    Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
-    
-    // Reports Module
-    Route::middleware(['auth'])->group(function () {
+    // ====================== ADMIN + MANAGER ======================
+    Route::middleware('role:admin,manager')->group(function () {
+        // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+        // Staff Schedules
+        Route::get('/staff-schedules', [StaffScheduleController::class, 'index'])->name('staff-schedules.index');
+        Route::post('/staff-schedules', [StaffScheduleController::class, 'store'])->name('staff-schedules.store');
+        Route::get('/staff-scheduling/{schedule}/edit', [StaffScheduleController::class, 'edit'])->name('schedules.edit');
+        Route::put('/staff-scheduling/{schedule}', [StaffScheduleController::class, 'update'])->name('schedules.update');
+        Route::delete('/staff-scheduling/{id}', [StaffScheduleController::class, 'destroy'])->name('schedules.destroy');
     });
 
-    // Audit Logs Module
-    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    // ====================== ADMIN + MANAGER + RECEPTIONIST ======================
+    Route::middleware('role:admin,manager,receptionist')->group(function () {
+        // Rooms
+        Route::resource('rooms', RoomController::class);
+        Route::patch('/rooms/{room}/update-status', [RoomController::class, 'updateStatus'])->name('rooms.update-status');
 
-    // Shift Module
-    Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
-    Route::post('/shifts', [ShiftController::class, 'store'])->name('shifts.store');
-    Route::get('/manage-shifts/{shift}/edit', [ShiftController::class, 'edit'])->name('shifts.edit');
-    Route::put('/manage-shifts/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
-    Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->name('shifts.destroy');
+        // Guests
+        Route::resource('guests', GuestController::class);
 
-    // Staff Schedules Module
-    Route::get('/staff-schedules', [StaffScheduleController::class, 'index'])->name('staff-schedules.index');
-    Route::post('/staff-schedules', [StaffScheduleController::class, 'store'])->name('staff-schedules.store');
-    Route::get('/staff-scheduling/{schedule}/edit', [StaffScheduleController::class, 'edit'])->name('schedules.edit');
-    Route::put('/staff-scheduling/{schedule}', [StaffScheduleController::class, 'update'])->name('schedules.update');
-    Route::delete('/staff-scheduling/{id}', [StaffScheduleController::class, 'destroy'])->name('schedules.destroy');
+        // Bookings
+        Route::resource('bookings', BookingController::class);
+        Route::get('/checkin-checkout', [BookingController::class, 'checkInOut'])->name('bookings.checkin-checkout');
+        Route::post('/bookings/{booking}/checkin', [BookingController::class, 'checkin'])->name('bookings.checkin');
+        Route::post('/bookings/{booking}/checkout', [BookingController::class, 'checkout'])->name('bookings.checkout');
+        Route::patch('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 
-    // Setting Module
-    Route::get('/settings', [HotelSettingController::class, 'show'])->name('settings.show');
-    Route::get('/settings/edit', [HotelSettingController::class, 'edit'])->name('settings.edit');
-    Route::post('/settings/update', [HotelSettingController::class, 'update'])->name('settings.update');
+        // Payments
+        Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+        Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+        Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+        Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
 
-    // Housekeeping Tasks Module
-    Route::get('/housekeeping', [HousekeepingController::class, 'index'])->name('housekeeping.index');
+        // Housekeeping (Assign tasks - front desk / admin)
+        Route::get('/housekeeping', [HousekeepingController::class, 'index'])->name('housekeeping.index');
+        Route::get('/housekeeping/assign', [HousekeepingController::class, 'assign'])->name('housekeeping.assign');
+        Route::post('/housekeeping/assign/manual', [HousekeepingController::class, 'assignManual'])->name('housekeeping.assign.manual');
+        Route::post('/housekeeping/assign/auto', [HousekeepingController::class, 'assignAuto'])->name('housekeeping.assign.auto');
+        Route::get('/housekeeping/dirty-rooms', [HousekeepingController::class, 'dirtyRooms'])->name('housekeeping.dirty-rooms');
+        Route::get('/housekeeping/history', [HousekeepingController::class, 'cleaningHistory'])->name('housekeeping.history');
 
-    // Assign Form View
-    Route::get('/housekeeping/assign', [HousekeepingController::class, 'assign'])->name('housekeeping.assign');
-
-    // Assigning Tasks (Manual and Auto) & Task Status Updates
-    Route::post('/housekeeping/assign/manual', [HousekeepingController::class, 'assignManual'])->name('housekeeping.assign.manual');
-    Route::post('/housekeeping/assign/auto', [HousekeepingController::class, 'assignAuto'])->name('housekeeping.assign.auto');
-    Route::patch('/housekeeping/tasks/{task}/start', [HousekeepingController::class, 'startCleaning'])->name('housekeeping.tasks.start');
-    Route::patch('/housekeeping/tasks/{task}/complete', [HousekeepingController::class, 'completeCleaning'])->name('housekeeping.tasks.complete');
-
-    // Housekeeping cleaning history
-    Route::get('/housekeeping/history', [HousekeepingController::class, 'cleaningHistory'])->name('housekeeping.history');
-
-    // Dirty rooms
-    Route::get('/housekeeping/my-tasks', [HousekeepingController::class, 'myTasks'])->name('housekeeping.my-tasks');
-
-    // Dirty rooms
-    Route::get('/housekeeping/dirty-rooms', [HousekeepingController::class, 'dirtyRooms'])->name('housekeeping.dirty-rooms');
-
-    // Maintenance Module
-    Route::get('/maintenance/logs', [MaintenanceLogController::class, 'index'])->name('maintenance-logs.index');
-    Route::post('/maintenance/{task}/report-issue', [MaintenanceLogController::class, 'reportIssue'])->name('logs.report-issue');
-
-    // Mark room fixed
-    Route::post('/maintenance/{log}/fixed', [MaintenanceLogController::class, 'markAsFixed'])->name('maintenance.fixed');
-
-    // My Work Schedule
-    Route::get('/housekeeping/my-schedule', [HousekeepingController::class, 'mySchedule'])->name('housekeeping.my-schedule');
-
-    // Housekeeper dashboard
-    Route::get('housekeeper', [MaintenanceLogController::class, 'reportIssue'])->name('housekeeper.dashboard');
-
-    // Role Protected Routes
-    Route::middleware('role:admin,manager')->prefix('admin')->name('admin.')->group(function () {
-        // Admin & Manager routes
+        // Maintenance
+        Route::get('/maintenance/logs', [MaintenanceLogController::class, 'index'])->name('maintenance-logs.index');
+        Route::post('/maintenance/{task}/report-issue', [MaintenanceLogController::class, 'reportIssue'])->name('logs.report-issue');
+        Route::post('/maintenance/{log}/fixed', [MaintenanceLogController::class, 'markAsFixed'])->name('maintenance.fixed');
     });
 
-    Route::middleware('role:receptionist')->prefix('reception')->name('reception.')->group(function () {
-        // Reception routes
+    // ====================== HOUSEKEEPER ======================
+    Route::middleware('role:housekeeper')->group(function () {
+        // My Tasks
+        Route::get('/housekeeping/my-tasks', [HousekeepingController::class, 'myTasks'])->name('housekeeping.my-tasks');
+
+        // My Schedule
+        Route::get('/housekeeping/my-schedule', [HousekeepingController::class, 'mySchedule'])->name('housekeeping.my-schedule');
+
+        // Dirty Rooms
+        Route::get('/housekeeping/dirty-rooms', [HousekeepingController::class, 'dirtyRooms'])->name('housekeeping.dirty-rooms');
+
+        // Task History (cleaning history)
+        Route::get('/housekeeping/history', [HousekeepingController::class, 'cleaningHistory'])->name('housekeeping.history');
+
+        // Start / Complete Task
+        Route::patch('/housekeeping/tasks/{task}/start', [HousekeepingController::class, 'startCleaning'])->name('housekeeping.tasks.start');
+        Route::patch('/housekeeping/tasks/{task}/complete', [HousekeepingController::class, 'completeCleaning'])->name('housekeeping.tasks.complete');
     });
 
-    Route::middleware('role:housekeeper')->prefix('housekeeping')->name('housekeeping.')->group(function () {
-        // Housekeeping routes
-    });
-
-    // All authenticated users (Admin, Manager, Receptionist, Housekeeper) can access these routes
+    // ====================== ALL AUTHENTICATED USERS ======================
     Route::group([], function () {
-        // Profile Routes
+        // Profile
         Route::get('/my-profile', [DashboardController::class, 'myProfile'])->name('my-profile');
         Route::get('/profile/edit', [DashboardController::class, 'editProfile'])->name('profile.edit');
         Route::put('/profile/update', [DashboardController::class, 'updateProfile'])->name('profile.update');
@@ -153,5 +140,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     });
 
+    // Logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
